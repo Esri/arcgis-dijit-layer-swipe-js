@@ -1,0 +1,2 @@
+arcgis-swipe-widget-js
+======================
