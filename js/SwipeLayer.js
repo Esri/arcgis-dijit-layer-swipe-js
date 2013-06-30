@@ -162,14 +162,9 @@ function (
         _swipe: function (val) {
             var _self = this;
             if (_self._swipediv) {
-            
-
                 var offset_left = parseFloat(domStyle.get(_self._swipediv, "left"));
                 var offset_top = parseFloat(domStyle.get(_self._swipediv, "top"));
-
-
                 var rightval, leftval, topval, bottomval;
-
                 if (offset_left > 0) {
                     rightval = parseFloat(val) - Math.abs(offset_left);
                     leftval = -(offset_left);
@@ -192,7 +187,6 @@ function (
                     topval = 0;
                     bottomval = _self.map.height;
                 }
-
                 // If CSS Transformation is applied to the layer (i.e. swipediv),
                 // record the amount of translation and adjust clip rect
                 // accordingly
@@ -212,7 +206,6 @@ function (
                     if (sniff("opera")) {
                         prefix = "-o-";
                     }
-
                     var transformValue = _self._swipediv.style.getPropertyValue(prefix + "transform");
                     if (transformValue) {
                         if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
@@ -220,23 +213,18 @@ function (
                         } else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
                             transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
                         }
-
-
                         try {
                             tx = parseFloat(transformValue[0]);
                             ty = parseFloat(transformValue[1]);
                         } catch (e) {
                             console.error(e);
                         }
-
-
                         leftval -= tx;
                         rightval -= tx;
                         topval -= ty;
                         bottomval -= ty;
                     }
                 }
-
                 //Syntax for clip "rect(top,right,bottom,left)"
                 //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
                 var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
