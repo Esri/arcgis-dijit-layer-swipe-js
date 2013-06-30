@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <title>SwipeLayer Dijit</title>
+    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.6/js/esri/css/esri.css">
+    
+    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.6/js/dojo/dijit/themes/claro/claro.css">
+    
+    <link rel="stylesheet" type="text/css" href="css/SwipeLayer.css">
+
+
+
+    <style>
+        body{
+            margin:40px;
+            padding:20px;
+        }
+        .container{
+            position:relative;
+            padding: 10px;
+            border: 1px solid #eee;
+            -webkit-border-radius: 3px;
+            border-radius: 3px;
+        }
+        #map{
+            width:100%;
+            height: 500px;
+            position: relative;
+        }
+    </style>
+
+
+
+
+
+    <script type="text/javascript">
+        // get current path
+        var pathRegex = new RegExp(/\/[^\/]+$/);
+        var locationPath = location.pathname.replace(pathRegex, '');
+        // Dojo Config
+        var dojoConfig = {
+            parseOnLoad: true,
+            packages: [
+                {
+                    name: "modules",
+                    location: locationPath + 'js/'
+                }
+            ]
+        };
+    </script>
+
+
+
+
+
+
+    <script src="http://js.arcgis.com/3.6/" type="text/javascript"></script>
+    <script type="text/javascript">
+        var swipeWidget;
+        require(["dojo/_base/lang", "esri/map", "modules/SwipeLayer", "esri/arcgis/utils",], function(lang, Map, SwipeLayer, arcgisUtils){
+            
+            
+            arcgisUtils.createMap('95da126c5a42403d9f9f038972af1a7e', "map", {
+                mapOptions: {
+                    //Optionally define additional map config here for example you can 
+                    //turn the slider off, display info windows, disable wraparound 180, slider position and more. 
+                }
+            }).then(lang.hitch(this, function (response) {
+                
+                var map = response.map;
+                
+                var title = "MooreTornado1";
+                var id;
+                var layers = response.itemInfo.itemData.operationalLayers;
+                
+                
+                if (layers.length) {
+                    for (var i = 0; i < layers.length; i++) {
+                        if (layers[i].title === title) {
+                            id = layers[i].id;
+                        }
+                    }
+                }
+                
+                var layer = map.getLayer(id);
+                
+                
+                console.log(layer);
+                
+                
+                
+                
+                swipeWidget = new SwipeLayer({
+                    map: map,
+                    layer: layer
+                }, "SwipeLayer");
+                swipeWidget.startup();
+                
+                
+                
+                
+                
+                
+            }), lang.hitch(this, function (error) {
+                //an error occurred - notify the user. In this example we pull the string from the 
+                //resource.js file located in the nls folder because we've set the application up 
+                //for localization. If you don't need to support mulitple languages you can hardcode the 
+                //strings here and comment out the call in index.html to get the localization strings. 
+                if (this.config && this.config.i18n) {
+                    alert(this.config.i18n.map.error + ": " + error.message);
+                } else {
+                    alert("Unable to create map: " + error.message);
+                }
+
+            }));
+            
+        });
+    </script>
+
+
+
+
+
+</head>
+<body class="claro">
+
+
+
+    <div class="container">
+        <div id="map" class="map">
+            <div id="SwipeLayer"></div>
+        </div>
+    </div>
+
+
+
+</body>
+</html>

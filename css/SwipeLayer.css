@@ -1,0 +1,16 @@
+.SwipeLayer .moveable {
+    position:absolute;
+    border-left:1px solid #848484;
+    border-right:1px solid #848484;
+    background-color: #dadada;
+    width: 6px;
+    height: 100%;
+    padding: 0 !important;
+    margin: 0;
+    z-index: 30;
+    cursor: col-resize;
+}
+
+.SwipeLayer .moveable:hover {
+    background-color:#999;
+}
