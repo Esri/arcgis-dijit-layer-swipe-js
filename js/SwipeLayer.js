@@ -54,6 +54,7 @@ function (
                 handleContainer: "handleContainer",
                 handle: "handle"
             };
+            this._listeners = [];
         },
         // start widget. called by user
         startup: function() {
@@ -72,13 +73,18 @@ function (
             if (_self.map.loaded) {
                 _self._init();
             } else {
-                on(_self.map, "load", function() {
+                on.once(_self.map, "load", function() {
                     _self._init();
                 });
             }
         },
         // connections/subscriptions will be cleaned up during the destroy() lifecycle phase
         destroy: function() {
+            if(this._listeners.length){
+                for(var i = 0; i < this._listeners.length; i++){
+                    this._listeners[i].remove();
+                }
+            }
             this.inherited(arguments);
         },
         /* ---------------- */
@@ -132,7 +138,7 @@ function (
         },
         _clipLayer: function () {
             var _self = this;
-            on(_self._swipeslider, 'Move', function () {
+            var swipeMove = on(_self._swipeslider, 'Move', function () {
                 domStyle.set(this.node, "top", "0px"); //needed to avoid offset
                 var left = domStyle.get(this.node, "left");
                 var leftInt = parseInt(left, 10);
@@ -142,17 +148,21 @@ function (
                 _self._clipval = left;
                 _self._swipe(_self._clipval);
             });
-            on(_self.map, 'pan-end', function () {
+            this._listeners.push(swipeMove);
+            var swipePanEnd = on(_self.map, 'pan-end', function () {
                 _self._swipe(_self._clipval);
             });
+            this._listeners.push(swipePanEnd);
             if (_self.map.navigationMode === "css-transforms") {
-                on(_self.map, 'pan', function () {
+                var swipePan = on(_self.map, 'pan', function () {
                     _self._swipe(_self._clipval);
                 });
+                this._listeners.push(swipePan);
             }
-            on(_self.get("layer"), 'visibility-change', function(e){
+            var layerToggle = on(_self.get("layer"), 'visibility-change', function(e){
                 _self.set("visible", e.visible);
             });
+            this._listeners.push(layerToggle);
         },
         _initSwipe: function () {
             var _self = this;
