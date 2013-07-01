@@ -50,7 +50,9 @@ function (
             this.watch("visible", this._visible);
             // classes
             this._css = {
-                moveable: "moveable"
+                moveable: "moveable",
+                handleContainer: "handleContainer",
+                handle: "handle"
             };
         },
         // start widget. called by user
@@ -110,7 +112,7 @@ function (
             });
             // set initial position
             var marginBox = domGeom.getMarginBox(_self._moveableNode);
-            var left = parseInt((this.map.width / 2) - (marginBox.w/2), 10) + "px";
+            var left = parseInt((this.map.width / 4) - (marginBox.w/2), 10) + "px";
             if(this.get("offset")){
                 left = this.get("offset") + "px";
             }

@@ -71,19 +71,22 @@
                 
                 var map = response.map;
                 
+                
+                // getting layer id by title
                 var title = "MooreTornado1";
                 var id;
                 var layers = response.itemInfo.itemData.operationalLayers;
-                
-                
                 if (layers.length) {
                     for (var i = 0; i < layers.length; i++) {
                         if (layers[i].title === title) {
                             id = layers[i].id;
+                            break;
                         }
                     }
                 }
                 
+                
+                // get layer by id
                 var layer = map.getLayer(id);
                 
                 
