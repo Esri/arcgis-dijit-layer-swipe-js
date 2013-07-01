@@ -24,6 +24,17 @@
             height: 500px;
             position: relative;
         }
+        #toggleLayer{
+            text-decoration: underline;
+            color:#457ee9;
+            display: inline-block;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+        #toggleLayer: hover{
+            color:black;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body class="claro">
@@ -36,6 +47,7 @@
         </div>
     </div>
 
+    <div id="toggleLayer">Toggle Layer</div>
 
     <script type="text/javascript">
         // get current path
@@ -55,10 +67,10 @@
     <script src="http://js.arcgis.com/3.6/" type="text/javascript"></script>
     <script type="text/javascript">
         var swipeWidget;
-        require(["dojo/_base/lang", "esri/map", "modules/SwipeLayer", "esri/arcgis/utils",], function(lang, Map, SwipeLayer, arcgisUtils){
+        require(["dojo/_base/lang", "esri/map", "modules/SwipeLayer", "esri/arcgis/utils", "dojo/on", "dojo/dom"], function(lang, Map, SwipeLayer, arcgisUtils, on, dom){
             
             
-            arcgisUtils.createMap('95da126c5a42403d9f9f038972af1a7e', "map", {
+            arcgisUtils.createMap('62702544d70648e593bc05d65180fd64', "map", {
                 mapOptions: {
                     //Optionally define additional map config here for example you can 
                     //turn the slider off, display info windows, disable wraparound 180, slider position and more. 
@@ -69,7 +81,7 @@
                 
                 
                 // getting layer id by title
-                var title = "MooreTornado1";
+                var title = "2009 Obesity Rates";
                 var id;
                 var layers = response.itemInfo.itemData.operationalLayers;
                 if (layers.length) {
@@ -98,6 +110,10 @@
                 swipeWidget.startup();
                 
                 
+                
+                on(dom.byId('toggleLayer'), 'click', function(){
+                    layer.setVisibility(!layer.visible); 
+                });
                 
                 
                 
