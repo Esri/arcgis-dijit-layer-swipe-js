@@ -5,13 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <title>SwipeLayer Dijit</title>
     <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.6/js/esri/css/esri.css">
-    
     <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.6/js/dojo/dijit/themes/claro/claro.css">
-    
     <link rel="stylesheet" type="text/css" href="css/SwipeLayer.css">
-
-
-
     <style>
         body{
             margin:40px;
@@ -30,9 +25,16 @@
             position: relative;
         }
     </style>
+</head>
+<body class="claro">
 
+    <h1>SwipeLayer Dijit</h1>
 
-
+    <div class="container">
+        <div id="map" class="map">
+            <div id="SwipeLayer"></div>
+        </div>
+    </div>
 
 
     <script type="text/javascript">
@@ -50,12 +52,6 @@
             ]
         };
     </script>
-
-
-
-
-
-
     <script src="http://js.arcgis.com/3.6/" type="text/javascript"></script>
     <script type="text/javascript">
         var swipeWidget;
@@ -121,23 +117,5 @@
             
         });
     </script>
-
-
-
-
-
-</head>
-<body class="claro">
-
-
-
-    <div class="container">
-        <div id="map" class="map">
-            <div id="SwipeLayer"></div>
-        </div>
-    </div>
-
-
-
 </body>
 </html>
