@@ -154,25 +154,25 @@ function (
         },
         _clipLayer: function() {
             var _self = this;
-            var swipeMove = on(_self._swipeslider, 'Move', function() {
+            _self._swipeMove = on.pausable(_self._swipeslider, 'Move', function() {
                 _self._setClipValue();
                 _self._swipe(_self._clipval);
             });
-            this._listeners.push(swipeMove);
-            var swipePanEnd = on(_self.map, 'pan-end', function() {
+            this._listeners.push(_self._swipeMove);
+            _self._swipePanEnd = on.pausable(_self.map, 'pan-end', function() {
                 _self._swipe(_self._clipval);
             });
-            this._listeners.push(swipePanEnd);
+            this._listeners.push(_self._swipePanEnd);
             if (_self.map.navigationMode === "css-transforms") {
-                var swipePan = on(_self.map, 'pan', function() {
+                _self._swipePan = on.pausable(_self.map, 'pan', function() {
                     _self._swipe(_self._clipval);
                 });
-                this._listeners.push(swipePan);
+                this._listeners.push(_self._swipePan);
             }
-            var layerToggle = on(_self.get("layer"), 'visibility-change', function(e) {
+            _self._layerToggle = on(_self.get("layer"), 'visibility-change', function(e) {
                 _self.set("visible", e.visible);
             });
-            this._listeners.push(layerToggle);
+            this._listeners.push(_self._layerToggle);
         },
         _initSwipe: function() {
             var _self = this;
@@ -261,9 +261,19 @@ function (
                 this._clipLayer();
                 this._setClipValue();
                 this._swipe(this._clipval);
+                this._swipeMove.resume();
+                this._swipePanEnd.resume();
+                if(this._swipePan){
+                    this._swipePan.resume();
+                }
                 domStyle.set(this.domNode, 'display', 'block');
+                this.get("layer").show();
             } else {
-                this._removeEvents();
+                this._swipeMove.pause();
+                this._swipePanEnd.pause();
+                if(this._swipePan){
+                    this._swipePan.pause();
+                }
                 domStyle.set(this.domNode, 'display', 'none');
                 var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
                 domStyle.set(this._swipediv, "clip", clipstring);
@@ -271,10 +281,8 @@ function (
         },
         _visible: function() {
             if (this.get("visible")) {
-                this.set("enabled", true);
                 this.get("layer").show();
             } else {
-                this.set("enabled", false);
                 this.get("layer").hide();
             }
         }

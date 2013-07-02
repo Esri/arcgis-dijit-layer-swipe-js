@@ -25,13 +25,16 @@
             position: relative;
         }
         #toggleLayer{
+            margin-right: 10px;
+        }
+        #toggleLayer, #toggleEnabled{
             text-decoration: underline;
             color:#457ee9;
             display: inline-block;
             padding: 10px 0;
             cursor: pointer;
         }
-        #toggleLayer: hover{
+        #toggleLayer: hover, #toggleEnabled: hover{
             color:black;
             text-decoration: none;
         }
@@ -47,7 +50,8 @@
         </div>
     </div>
 
-    <div id="toggleLayer">Toggle Layer</div>
+    <div id="toggleLayer">Toggle Layer Visibility</div>
+    <div id="toggleEnabled">Toggle Widget Enabled</div>
 
     <script type="text/javascript">
         // get current path
@@ -112,7 +116,12 @@
                 
                 
                 on(dom.byId('toggleLayer'), 'click', function(){
-                    layer.setVisibility(!layer.visible); 
+                    layer.setVisibility(!layer.visible);
+                    //swipeWidget.set("visible", !swipeWidget.get("visible")); 
+                });
+                
+                on(dom.byId('toggleEnabled'), 'click', function(){
+                    swipeWidget.set("enabled", !swipeWidget.get("enabled")); 
                 });
                 
                 
