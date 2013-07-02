@@ -31,7 +31,8 @@ function (
             theme: "SwipeLayer",
             map: null,
             layer: null,
-            offset: null
+            offset: null,
+            enabled: true
         },
         // lifecycle: 1
         constructor: function(options, srcRefNode) {
@@ -45,9 +46,11 @@ function (
             this.set("layer", this.options.layer);
             this.set("offset", this.options.offset);
             this.set("theme", this.options.theme);
+            this.set("enabled", this.options.enabled);
             // listeners
             this.watch("theme", this._updateThemeWatch);
             this.watch("visible", this._visible);
+            this.watch("enabled", this._enabled);
             // classes
             this._css = {
                 moveable: "moveable",
@@ -80,11 +83,7 @@ function (
         },
         // connections/subscriptions will be cleaned up during the destroy() lifecycle phase
         destroy: function() {
-            if(this._listeners.length){
-                for(var i = 0; i < this._listeners.length; i++){
-                    this._listeners[i].remove();
-                }
-            }
+            this._removeEvents();
             this.inherited(arguments);
         },
         /* ---------------- */
@@ -96,10 +95,10 @@ function (
         /* ---------------- */
         /* Public Functions */
         /* ---------------- */
-        show: function(){
-            this.set("visible", true);  
+        show: function() {
+            this.set("visible", true);
         },
-        hide: function(){
+        hide: function() {
             this.set("visible", false);
         },
         /* ---------------- */
@@ -118,8 +117,8 @@ function (
             });
             // set initial position
             var marginBox = domGeom.getMarginBox(_self._moveableNode);
-            var left = parseInt((this.map.width / 4) - (marginBox.w/2), 10) + "px";
-            if(this.get("offset")){
+            var left = parseInt((this.map.width / 4) - (marginBox.w / 2), 10) + "px";
+            if (this.get("offset")) {
                 left = this.get("offset") + "px";
             }
             domStyle.set(_self._swipeslider.node, {
@@ -136,42 +135,53 @@ function (
             // we're ready
             _self.onLoad();
         },
-        _clipLayer: function () {
-            var _self = this;
-            var swipeMove = on(_self._swipeslider, 'Move', function () {
-                domStyle.set(this.node, "top", "0px"); //needed to avoid offset
-                var left = domStyle.get(this.node, "left");
-                var leftInt = parseInt(left, 10);
-                if (leftInt <= 0 || leftInt >= (_self.map.width)) {
-                    return;
+        _removeEvents: function() {
+            if (this._listeners.length) {
+                for (var i = 0; i < this._listeners.length; i++) {
+                    this._listeners[i].remove();
                 }
-                _self._clipval = left;
+            }
+            this._listeners = [];
+        },
+        _setClipValue: function() {
+            domStyle.set(this._swipeslider.node, "top", "0px"); //needed to avoid offset
+            var left = domStyle.get(this._swipeslider.node, "left");
+            var leftInt = parseInt(left, 10);
+            if (leftInt <= 0 || leftInt >= (this.map.width)) {
+                return;
+            }
+            this._clipval = left;
+        },
+        _clipLayer: function() {
+            var _self = this;
+            var swipeMove = on(_self._swipeslider, 'Move', function() {
+                _self._setClipValue();
                 _self._swipe(_self._clipval);
             });
             this._listeners.push(swipeMove);
-            var swipePanEnd = on(_self.map, 'pan-end', function () {
+            var swipePanEnd = on(_self.map, 'pan-end', function() {
                 _self._swipe(_self._clipval);
             });
             this._listeners.push(swipePanEnd);
             if (_self.map.navigationMode === "css-transforms") {
-                var swipePan = on(_self.map, 'pan', function () {
+                var swipePan = on(_self.map, 'pan', function() {
                     _self._swipe(_self._clipval);
                 });
                 this._listeners.push(swipePan);
             }
-            var layerToggle = on(_self.get("layer"), 'visibility-change', function(e){
+            var layerToggle = on(_self.get("layer"), 'visibility-change', function(e) {
                 _self.set("visible", e.visible);
             });
             this._listeners.push(layerToggle);
         },
-        _initSwipe: function () {
+        _initSwipe: function() {
             var _self = this;
             if (!this.get("layer")) {
                 return;
             }
             _self._swipediv = this.get("layer")._div;
         },
-        _swipe: function (val) {
+        _swipe: function(val) {
             var _self = this;
             if (_self._swipediv) {
                 var offset_left = parseFloat(domStyle.get(_self._swipediv, "left"));
@@ -180,8 +190,7 @@ function (
                 if (offset_left > 0) {
                     rightval = parseFloat(val) - Math.abs(offset_left);
                     leftval = -(offset_left);
-                } else
-                if (offset_left < 0) {
+                } else if (offset_left < 0) {
                     leftval = 0;
                     rightval = parseFloat(val) + Math.abs(offset_left);
                 } else {
@@ -191,8 +200,7 @@ function (
                 if (offset_top > 0) {
                     topval = -(offset_top);
                     bottomval = _self.map.height - offset_top;
-                } else
-                if (offset_top < 0) {
+                } else if (offset_top < 0) {
                     topval = 0;
                     bottomval = _self.map.height + Math.abs(offset_top);
                 } else {
@@ -248,15 +256,26 @@ function (
             domClass.remove(_self.domNode, oldVal);
             domClass.add(_self.domNode, newVal);
         },
-        _visible: function(){
-            var _self = this;
-            if(_self.get("visible")){
-                domStyle.set(_self.domNode, 'display', 'block');
-                _self.get("layer").show();
+        _enabled: function() {
+            if (this.get("enabled")) {
+                this._clipLayer();
+                this._setClipValue();
+                this._swipe(this._clipval);
+                domStyle.set(this.domNode, 'display', 'block');
+            } else {
+                this._removeEvents();
+                domStyle.set(this.domNode, 'display', 'none');
+                var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
+                domStyle.set(this._swipediv, "clip", clipstring);
             }
-            else{
-                domStyle.set(_self.domNode, 'display', 'none');
-                _self.get("layer").hide();
+        },
+        _visible: function() {
+            if (this.get("visible")) {
+                this.set("enabled", true);
+                this.get("layer").show();
+            } else {
+                this.set("enabled", false);
+                this.get("layer").hide();
             }
         }
     });
