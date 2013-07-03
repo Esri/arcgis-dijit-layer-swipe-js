@@ -11,20 +11,20 @@ A swipe widget to partially show a layer by dragging it left or right.
 
 Basic use
 
-    var swipeWidget = new SwipeLayer({
+    var swipeWidget = new LayerSwipe({
         map: map,
         layer: layer
-    }, "SwipeLayer");
+    }, "LayerSwipe");
     swipeWidget.startup();
     
 All options
     
-     var swipeWidget = new SwipeLayer({
-        theme: "SwipeLayer", // applies css class to the widget container
+     var swipeWidget = new LayerSwipe({
+        theme: "LayerSwipe", // applies css class to the widget container
         map: myMap, // map to use for the widget
-        layer: myLayer, // layer to use for the swipe widget
+        layer: myLayer, // layer to use for the swipe widget or string id of the layer eg: "layerId".
         offset: 20 // start the swipe tool 20 pixels from the left on load. (defaults to 1/4 of map width)
-    }, "SwipeLayer"); // div to use the widget
+    }, "LayerSwipe"); // div to use the widget
     swipeWidget.startup();
     
 Hiding the widget
@@ -78,5 +78,5 @@ limitations under the License.
 
 A copy of the license is available in the repository's [license.txt](https://raw.github.com/Esri/geocoder-search-widget-js/master/license.txt) file.
 
-[](Esri Tags: ArcGIS JavaScript API Dijit module swipe Widget Public swipemap swipelayer)
+[](Esri Tags: ArcGIS JavaScript API Dijit module swipe Widget Public swipemap LayerSwipe)
 [](Esri Language: JavaScript)

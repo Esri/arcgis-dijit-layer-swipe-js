@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
-    <title>SwipeLayer Dijit</title>
+    <title>LayerSwipe Dijit</title>
     <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.6/js/esri/css/esri.css">
     <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.6/js/dojo/dijit/themes/claro/claro.css">
-    <link rel="stylesheet" type="text/css" href="css/SwipeLayer.css">
+    <link rel="stylesheet" type="text/css" href="css/LayerSwipe.css">
     <style>
         body{
             margin:40px;
@@ -42,11 +42,11 @@
 </head>
 <body class="claro">
 
-    <h1>SwipeLayer Dijit</h1>
+    <h1>LayerSwipe Dijit</h1>
 
     <div class="container">
         <div id="map" class="map">
-            <div id="SwipeLayer"></div>
+            <div id="LayerSwipe"></div>
         </div>
     </div>
 
@@ -71,7 +71,7 @@
     <script src="http://js.arcgis.com/3.6/" type="text/javascript"></script>
     <script type="text/javascript">
         var swipeWidget;
-        require(["dojo/_base/lang", "esri/map", "modules/SwipeLayer", "esri/arcgis/utils", "dojo/on", "dojo/dom"], function(lang, Map, SwipeLayer, arcgisUtils, on, dom){
+        require(["dojo/_base/lang", "esri/map", "modules/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom){
             
             
             arcgisUtils.createMap('62702544d70648e593bc05d65180fd64', "map", {
@@ -107,10 +107,10 @@
                 
                 
                 
-                swipeWidget = new SwipeLayer({
+                swipeWidget = new LayerSwipe({
                     map: map,
                     layer: layer
-                }, "SwipeLayer");
+                }, "LayerSwipe");
                 swipeWidget.startup();
                 
                 

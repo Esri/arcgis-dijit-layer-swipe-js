@@ -5,8 +5,8 @@ define([
     "dijit/_TemplatedMixin",
     "dojo/on",
     // load template
-    "dojo/text!./templates/SwipeLayer.html",
-    "dojo/i18n!./nls/SwipeLayer",
+    "dojo/text!./templates/LayerSwipe.html",
+    "dojo/i18n!./nls/LayerSwipe",
     "dojo/dom",
     "dojo/dom-class",
     "dojo/dom-style",
@@ -25,10 +25,10 @@ function (
     domGeom
 ) {
     return declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
-        declaredClass: "modules.SwipeLayer",
+        declaredClass: "modules.LayerSwipe",
         templateString: dijitTemplate,
         options: {
-            theme: "SwipeLayer",
+            theme: "LayerSwipe",
             map: null,
             layer: null,
             offset: null,
@@ -61,11 +61,14 @@ function (
         },
         // start widget. called by user
         startup: function() {
-            var _self = this;
+            var _self = this;        
             // map not defined
             if (!_self.map) {
                 _self.destroy();
                 return new Error('map required');
+            }
+            if(typeof _self.layer === 'string'){
+                _self.set("layer", _self.map.getLayer(_self.layer));
             }
             if (!_self.layer) {
                 _self.destroy();
