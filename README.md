@@ -1,11 +1,11 @@
-# arcgis-dijit-swipe-layer-js
+# arcgis-dijit-layer-swipe-js
 
 ## Features
 A swipe widget to partially show a layer by dragging it left or right.
 
-![App](https://raw.github.com/driskull/arcgis-dijit-swipe-layer-js/master/images/demo.png)
+![App](https://raw.github.com/driskull/arcgis-dijit-layer-swipe-js/master/images/demo.png)
 
-[View Demo](http://driskull.github.com/arcgis-dijit-swipe-layer-js/)
+[View Demo](http://driskull.github.com/arcgis-dijit-layer-swipe-js/)
 
 ## Instructions
 
