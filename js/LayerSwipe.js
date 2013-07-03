@@ -104,6 +104,12 @@ function (
         hide: function() {
             this.set("visible", false);
         },
+        enable: function() {
+            this.set("enabled", true);
+        },
+        disable: function() {
+            this.set("enabled", false);
+        },
         /* ---------------- */
         /* Private Functions */
         /* ---------------- */
