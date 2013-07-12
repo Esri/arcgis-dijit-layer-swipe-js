@@ -24,15 +24,30 @@
             height: 500px;
             position: relative;
         }
-        #toggleLayer{
+        
+        
+        .changeTool{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .changeTool li{
+            margin: 0;
+            padding: 0;
+            float: left;
             margin-right: 10px;
         }
+        .changeTool li label{
+            
+        }
+
         #toggleLayer, #toggleEnabled{
             text-decoration: underline;
             color:#457ee9;
             display: inline-block;
             padding: 10px 0;
             cursor: pointer;
+            margin-right: 10px;
         }
         #toggleLayer: hover, #toggleEnabled: hover{
             color:black;
@@ -52,6 +67,14 @@
 
     <div id="toggleLayer">Toggle Layer Visibility</div>
     <div id="toggleEnabled">Toggle Widget Enabled</div>
+    
+
+    <ul class="changeTool">
+        <li><input id="vTool" type="radio" name="tool" value="vertical" checked="checked" /><label for="vTool">Vertical</label></li>
+        <li><input id="hTool" type="radio" name="tool" value="horizontal" /><label for="hTool">Horizontal</label></li>
+        <li><input id="sTool" type="radio" name="tool" value="scope" /><label for="sTool">Scope</label></li>
+    </ul>
+    
 
     <script type="text/javascript">
         // get current path
@@ -71,7 +94,7 @@
     <script src="http://js.arcgis.com/3.6/" type="text/javascript"></script>
     <script type="text/javascript">
         var swipeWidget;
-        require(["dojo/_base/lang", "esri/map", "modules/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom){
+        require(["dojo/_base/lang", "esri/map", "modules/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom", "dojo/query"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom, query){
             
             
             arcgisUtils.createMap('62702544d70648e593bc05d65180fd64', "map", {
@@ -115,6 +138,8 @@
                 
                 
                 
+                
+                
                 on(dom.byId('toggleLayer'), 'click', function(){
                     layer.setVisibility(!layer.visible);
                     //swipeWidget.set("visible", !swipeWidget.get("visible")); 
@@ -122,6 +147,10 @@
                 
                 on(dom.byId('toggleEnabled'), 'click', function(){
                     swipeWidget.set("enabled", !swipeWidget.get("enabled")); 
+                });
+                
+                on(query("input[name=tool]"), 'change', function(evt){
+                    swipeWidget.set("tool", evt.target.value);
                 });
                 
                 

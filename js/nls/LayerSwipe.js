@@ -1,5 +1,5 @@
 define({
     "root": ({
-        "title":"Move the slider left or right"
+        "title":"Drag to see underlying layer"
     })
 });

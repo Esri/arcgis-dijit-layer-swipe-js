@@ -23,7 +23,10 @@ All options
         theme: "LayerSwipe", // applies css class to the widget container
         map: myMap, // map to use for the widget
         layer: myLayer, // layer to use for the swipe widget or string id of the layer eg: "layerId".
-        offset: 20 // start the swipe tool 20 pixels from the left on load. (defaults to 1/4 of map width)
+        tool: "vertical", // type of the swipe tool to use. Options are "vertical", "horizontal" or "scope".
+        toolClip: 9, // pixels to clip the scope image for rounded corners.
+        toolOffsetTop: null // Starting offset for the tool from the top. Defaults to null and uses 1/4 map width for horizontal and center for scope.
+        toolOffsetLeft: null // Starting offset for the tool from the left. Defaults null and uses 1/4 map height on vertical and center for scope.
     }, "LayerSwipe"); // div to use the widget
     swipeWidget.startup();
     
