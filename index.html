@@ -19,7 +19,7 @@
             -webkit-border-radius: 3px;
             border-radius: 3px;
         }
-        #map{
+        #map, #map2{
             width:100%;
             height: 500px;
             position: relative;
@@ -30,12 +30,13 @@
             list-style: none;
             padding: 0;
             margin: 0;
+            float:right;
         }
         .changeTool li{
             margin: 0;
-            padding: 0;
             float: left;
             margin-right: 10px;
+            padding: 6px 0;
         }
         .changeTool li label{
             
@@ -45,7 +46,7 @@
             text-decoration: underline;
             color:#457ee9;
             display: inline-block;
-            padding: 10px 0;
+            padding: 6px 0;
             cursor: pointer;
             margin-right: 10px;
         }
@@ -70,11 +71,19 @@
     
 
     <ul class="changeTool">
-        <li><input id="vTool" type="radio" name="tool" value="vertical" checked="checked" /><label for="vTool">Vertical</label></li>
+        <li><input id="vTool" type="radio" name="tool" value="vertical" /><label for="vTool">Vertical</label></li>
         <li><input id="hTool" type="radio" name="tool" value="horizontal" /><label for="hTool">Horizontal</label></li>
         <li><input id="sTool" type="radio" name="tool" value="scope" /><label for="sTool">Scope</label></li>
     </ul>
+    <div style="clear:both;"></div>
     
+    
+    <h2>Scope with Graphics Layer</h2>
+     <div class="container">
+        <div id="map2" class="map">
+            <div id="LayerSwipe2"></div>
+        </div>
+    </div>
 
     <script type="text/javascript">
         // get current path
@@ -93,10 +102,10 @@
     </script>
     <script src="http://js.arcgis.com/3.6/" type="text/javascript"></script>
     <script type="text/javascript">
-        var swipeWidget;
+        var swipeWidget, swipeWidget2;
         require(["dojo/_base/lang", "esri/map", "modules/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom", "dojo/query"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom, query){
             
-            
+
             arcgisUtils.createMap('62702544d70648e593bc05d65180fd64', "map", {
                 mapOptions: {
                     //Optionally define additional map config here for example you can 
@@ -115,6 +124,9 @@
                     for (var i = 0; i < layers.length; i++) {
                         if (layers[i].title === title) {
                             id = layers[i].id;
+                            if(layers[i].featureCollection && layers[i].featureCollection.layers.length){
+                                id = layers[i].featureCollection.layers[0].id;
+                            }
                             break;
                         }
                     }
@@ -125,7 +137,7 @@
                 var layer = map.getLayer(id);
                 
                 
-                
+
                 
                 
                 
@@ -169,6 +181,60 @@
 
             }));
             
+            
+            
+            arcgisUtils.createMap('1966ef409a344d089b001df85332608f', "map2", {
+                mapOptions: {
+                    //Optionally define additional map config here for example you can 
+                    //turn the slider off, display info windows, disable wraparound 180, slider position and more. 
+                }
+            }).then(lang.hitch(this, function (response) {
+                
+                var map = response.map;
+                
+                
+                // getting layer id by title
+                var title = "Fun";
+                var id;
+                var layers = response.itemInfo.itemData.operationalLayers;
+                if (layers.length) {
+                    for (var i = 0; i < layers.length; i++) {
+                        if (layers[i].title === title) {
+                            id = layers[i].id;
+                            if(layers[i].featureCollection && layers[i].featureCollection.layers.length){
+                                id = layers[i].featureCollection.layers[0].id;
+                            }
+                            break;
+                        }
+                    }
+                }
+                
+                
+                // get layer by id
+                var layer = map.getLayer(id);
+  
+                swipeWidget2 = new LayerSwipe({
+                    tool: "scope",
+                    map: map,
+                    layer: layer
+                }, "LayerSwipe2");
+                swipeWidget2.startup();
+  
+                
+            }), lang.hitch(this, function (error) {
+                //an error occurred - notify the user. In this example we pull the string from the 
+                //resource.js file located in the nls folder because we've set the application up 
+                //for localization. If you don't need to support mulitple languages you can hardcode the 
+                //strings here and comment out the call in index.html to get the localization strings. 
+                if (this.config && this.config.i18n) {
+                    alert(this.config.i18n.map.error + ": " + error.message);
+                } else {
+                    alert("Unable to create map: " + error.message);
+                }
+
+            }));
+            
+
         });
     </script>
 </body>
