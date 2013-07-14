@@ -136,59 +136,61 @@ function (
         _setSwipeType: function() {
             var _self = this;
             var moveBox, left, top;
-            if (_self._swipeslider) {
-                _self._swipeslider.destroy();
+            if(_self.get("tool")){
+                if (_self._swipeslider) {
+                    _self._swipeslider.destroy();
+                }
+                domClass.add(_self._moveableNode, _self.get("tool"));
+                moveBox = domGeom.getMarginBox(_self._moveableNode);
+                if (_self.get("tool") === "scope") {
+                    _self._swipeslider = new move.constrainedMoveable(_self._moveableNode, {
+                        handle: _self._moveableNode.id,
+                        constraints: lang.hitch(this, _self._mb),
+                        within: true
+                    });
+                    // set initial position
+                    left = (_self.map.width / 2) - (moveBox.w / 2);
+                    top = (_self.map.height / 2) - (moveBox.h / 2);
+                    if (_self.get("toolOffsetTop")) {
+                        top = _self.get("toolOffsetTop");
+                    }
+                    if (_self.get("toolOffsetLeft")) {
+                        left = _self.get("toolOffsetLeft");
+                    }
+                } else if (_self.get("tool") === "horizontal") {
+                    // create movable
+                    _self._swipeslider = new move.parentConstrainedMoveable(_self._moveableNode, {
+                        area: "content",
+                        within: true
+                    });
+                    // set initial position
+                    left = 0;
+                    top = (_self.map.height / 4) - (moveBox.h / 2);
+                    if (_self.get("toolOffsetTop")) {
+                        top = _self.get("toolOffsetTop");
+                    }
+                    // set clip var
+                    _self._clipval = top;
+                } else {
+                    // create movable
+                    _self._swipeslider = new move.parentConstrainedMoveable(_self._moveableNode, {
+                        area: "content",
+                        within: true
+                    });
+                    // set initial position
+                    left = (_self.map.width / 4) - (moveBox.w / 2);
+                    top = 0;
+                    if (_self.get("toolOffsetLeft")) {
+                        left = _self.get("toolOffsetLeft");
+                    }
+                    // set clip var
+                    _self._clipval = left;
+                }
+                domStyle.set(_self._moveableNode, {
+                    top: top + "px",
+                    left: left + "px"
+                });
             }
-            domClass.add(_self._moveableNode, _self.get("tool"));
-            moveBox = domGeom.getMarginBox(_self._moveableNode);
-            if (_self.get("tool") === "scope") {
-                _self._swipeslider = new move.constrainedMoveable(_self._moveableNode, {
-                    handle: _self._moveableNode.id,
-                    constraints: lang.hitch(this, _self._mb),
-                    within: true
-                });
-                // set initial position
-                left = (_self.map.width / 2) - (moveBox.w / 2);
-                top = (_self.map.height / 2) - (moveBox.h / 2);
-                if (_self.get("toolOffsetTop")) {
-                    top = _self.get("toolOffsetTop");
-                }
-                if (_self.get("toolOffsetLeft")) {
-                    left = _self.get("toolOffsetLeft");
-                }
-            } else if (_self.get("tool") === "horizontal") {
-                // create movable
-                _self._swipeslider = new move.parentConstrainedMoveable(_self._moveableNode, {
-                    area: "content",
-                    within: true
-                });
-                // set initial position
-                left = 0;
-                top = (_self.map.height / 4) - (moveBox.h / 2);
-                if (_self.get("toolOffsetTop")) {
-                    top = _self.get("toolOffsetTop");
-                }
-                // set clip var
-                _self._clipval = top;
-            } else {
-                // create movable
-                _self._swipeslider = new move.parentConstrainedMoveable(_self._moveableNode, {
-                    area: "content",
-                    within: true
-                });
-                // set initial position
-                left = (_self.map.width / 4) - (moveBox.w / 2);
-                top = 0;
-                if (_self.get("toolOffsetLeft")) {
-                    left = _self.get("toolOffsetLeft");
-                }
-                // set clip var
-                _self._clipval = left;
-            }
-            domStyle.set(_self._moveableNode, {
-                top: top + "px",
-                left: left + "px"
-            });
         },
         _init: function() {
             var _self = this;
@@ -253,17 +255,27 @@ function (
             });
             _self._listeners.push(_self._layerToggle);
             _self._toolClick = on.pausable(_self._moveableNode, 'click', function(evt){
-                var position = domGeom.position(_self.map.root, true);
-                var x = evt.pageX - position.x;
-                var y = evt.pageY - position.y;
-                evt.x = x;
-                evt.y = y;
-                evt.screenPoint = {x: x, y: y};
-                evt.type = "click";
-                evt.mapPoint = _self.map.toMap(new Point(x, y, _self.map.spatialReference));
-                _self.map.onClick(evt, "other");
+                if(_self._clickCoords && _self._clickCoords.x === evt.x &&_self._clickCoords.y === evt.y){
+                    var position = domGeom.position(_self.map.root, true);
+                    var x = evt.pageX - position.x;
+                    var y = evt.pageY - position.y;
+                    evt.x = x;
+                    evt.y = y;
+                    evt.screenPoint = {x: x, y: y};
+                    evt.type = "click";
+                    evt.mapPoint = _self.map.toMap(new Point(x, y, _self.map.spatialReference));
+                    _self.map.onClick(evt, "other");
+                }
+                _self._clickCoords = null;
             });
-            _self._listeners.push(_self._toolClick);       
+            _self._listeners.push(_self._toolClick);
+            _self._evtCoords = on(_self._swipeslider, "MouseDown", function(evt){
+                _self._clickCoords = {
+                    x: evt.x,
+                    y: evt.y
+                };
+            });
+            _self._listeners.push(_self._evtCoords);
         },
         _initSwipe: function() {
             var _self = this;
@@ -280,6 +292,9 @@ function (
         },
         _swipe: function() {
             var _self = this;
+            if(_self.map.infoWindow){
+                _self.map.infoWindow.hide();
+            }
             var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
             if(_self.get("tool") === "vertical"){
                 layerBox = domGeom.getMarginBox(_self._swipediv);
@@ -427,7 +442,9 @@ function (
             domClass.add(_self.domNode, newVal);
         },
         _tool: function(name, oldValue) {
-            domClass.remove(this._moveableNode, oldValue);
+            if(oldValue){
+                domClass.remove(this._moveableNode, oldValue);
+            }
             // set type of swipe tool
             this._setSwipeType();
             // swipe it

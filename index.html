@@ -71,7 +71,7 @@
     
 
     <ul class="changeTool">
-        <li><input id="vTool" type="radio" name="tool" value="vertical" /><label for="vTool">Vertical</label></li>
+        <li><input id="vTool" type="radio" name="tool" value="vertical" checked="checked" /><label for="vTool">Vertical</label></li>
         <li><input id="hTool" type="radio" name="tool" value="horizontal" /><label for="hTool">Horizontal</label></li>
         <li><input id="sTool" type="radio" name="tool" value="scope" /><label for="sTool">Scope</label></li>
     </ul>
@@ -143,6 +143,7 @@
                 
                 
                 swipeWidget = new LayerSwipe({
+                    tool: "vertical",
                     map: map,
                     layer: layer
                 }, "LayerSwipe");
@@ -190,7 +191,7 @@
                 }
             }).then(lang.hitch(this, function (response) {
                 
-                var map = response.map;
+                var map2 = response.map;
                 
                 
                 // getting layer id by title
@@ -211,11 +212,11 @@
                 
                 
                 // get layer by id
-                var layer = map.getLayer(id);
+                var layer = map2.getLayer(id);
   
                 swipeWidget2 = new LayerSwipe({
                     tool: "scope",
-                    map: map,
+                    map: map2,
                     layer: layer
                 }, "LayerSwipe2");
                 swipeWidget2.startup();
@@ -227,7 +228,7 @@
                 //for localization. If you don't need to support mulitple languages you can hardcode the 
                 //strings here and comment out the call in index.html to get the localization strings. 
                 if (this.config && this.config.i18n) {
-                    alert(this.config.i18n.map.error + ": " + error.message);
+                    alert(this.config.i18n.map2.error + ": " + error.message);
                 } else {
                     alert("Unable to create map: " + error.message);
                 }
