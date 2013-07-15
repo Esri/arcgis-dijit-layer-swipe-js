@@ -13,7 +13,7 @@ Basic use
 
     var swipeWidget = new LayerSwipe({
         map: map,
-        layer: layer
+        layers: [layer]
     }, "LayerSwipe");
     swipeWidget.startup();
     
@@ -22,7 +22,7 @@ All options
      var swipeWidget = new LayerSwipe({
         theme: "LayerSwipe", // applies css class to the widget container
         map: myMap, // map to use for the widget
-        layer: myLayer, // layer to use for the swipe widget or string id of the layer eg: "layerId".
+        layers: [myLayer], // layer to use for the swipe widget or string id of the layer eg: "layerId".
         tool: "vertical", // type of the swipe tool to use. Options are "vertical", "horizontal" or "scope".
         toolClip: 9, // pixels to clip the scope image for rounded corners.
         toolOffsetTop: null // Starting offset for the tool from the top. Defaults to null and uses 1/4 map width for horizontal and center for scope.

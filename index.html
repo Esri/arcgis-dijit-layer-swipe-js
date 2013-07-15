@@ -73,7 +73,7 @@
 <div style="clear:both;">
 </div>
 <script src="https://gist.github.com/driskull/5995588.js"></script>
-<h2>Scope with Graphics Layer</h2>
+<h2>Scope with 2 Graphics Layers</h2>
 <div class="container">
 	<div id="map2" class="map">
 		<div id="LayerSwipe2">
@@ -129,12 +129,11 @@
                 swipeWidget = new LayerSwipe({
                     tool: "vertical",
                     map: map,
-                    layer: layer
+                    layers: [layer]
                 }, "LayerSwipe");
                 swipeWidget.startup();
                 on(dom.byId('toggleLayer'), 'click', function(){
                     layer.setVisibility(!layer.visible);
-                    //swipeWidget.set("visible", !swipeWidget.get("visible")); 
                 });
                 on(dom.byId('toggleEnabled'), 'click', function(){
                     swipeWidget.set("enabled", !swipeWidget.get("enabled")); 
@@ -162,7 +161,8 @@
                 var map2 = response.map;
                 // getting layer id by title
                 var title = "Fun";
-                var id;
+                var title2 = "Food";
+                var id, id2;
                 var layers = response.itemInfo.itemData.operationalLayers;
                 if (layers.length) {
                     for (var i = 0; i < layers.length; i++) {
@@ -171,7 +171,12 @@
                             if(layers[i].featureCollection && layers[i].featureCollection.layers.length){
                                 id = layers[i].featureCollection.layers[0].id;
                             }
-                            break;
+                        }
+                        if (layers[i].title === title2) {
+                            id2 = layers[i].id;
+                            if(layers[i].featureCollection && layers[i].featureCollection.layers.length){
+                                id2 = layers[i].featureCollection.layers[0].id;
+                            }
                         }
                     }
                 }
@@ -180,7 +185,7 @@
                 swipeWidget2 = new LayerSwipe({
                     tool: "scope",
                     map: map2,
-                    layer: layer
+                    layers: [layer, id2]
                 }, "LayerSwipe2");
                 swipeWidget2.startup();
             }), lang.hitch(this, function (error) {
