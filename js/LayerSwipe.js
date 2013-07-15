@@ -244,6 +244,10 @@ function (
                 _self._swipe();
             });
             _self._listeners.push(_self._swipePanEnd);
+            _self._mapUpdateEnd = on.pausable(_self.map, 'update-end', function() {
+                _self._swipe();
+            });
+            _self._listeners.push(_self._mapUpdateEnd);
             if (_self.map.navigationMode === "css-transforms") {
                 _self._swipePan = on.pausable(_self.map, 'pan', function() {
                     _self._swipe();
@@ -269,7 +273,7 @@ function (
                 _self._clickCoords = null;
             });
             _self._listeners.push(_self._toolClick);
-            _self._evtCoords = on(_self._swipeslider, "MouseDown", function(evt){
+            _self._evtCoords = on.pausable(_self._swipeslider, "MouseDown", function(evt){
                 _self._clickCoords = {
                     x: evt.x,
                     y: evt.y
@@ -456,6 +460,9 @@ function (
                 this._setClipValue();
                 this._swipeMove.resume();
                 this._swipePanEnd.resume();
+                this._evtCoords.resume();
+                this._toolClick.resume();
+                this._mapUpdateEnd.resume();
                 if (this._swipePan) {
                     this._swipePan.resume();
                 }
@@ -465,6 +472,9 @@ function (
             } else {
                 this._swipeMove.pause();
                 this._swipePanEnd.pause();
+                this._evtCoords.pause();
+                this._toolClick.pause();
+                this._mapUpdateEnd.pause();
                 if (this._swipePan) {
                     this._swipePan.pause();
                 }
