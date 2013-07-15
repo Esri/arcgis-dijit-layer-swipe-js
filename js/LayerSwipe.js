@@ -286,10 +286,6 @@ function (
         },
         _swipe: function() {
             var _self = this;
-            // hide open info window
-            if (_self.map.infoWindow) {
-                _self.map.infoWindow.hide();
-            }
             // each layer
             for (var i = 0; i < _self.layers.length; i++) {
                 var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
