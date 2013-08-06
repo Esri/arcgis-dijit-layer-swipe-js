@@ -15,7 +15,8 @@ define([
     "dojo/sniff",
     "dojo/dom-geometry",
     "esri/geometry/Point",
-    "esri/geometry/Extent"
+    "esri/geometry/Extent",
+    "dojo/dom-construct"
 ],
 function (
     declare,
@@ -27,7 +28,8 @@ function (
     move,
     sniff,
     domGeom,
-    Point, Extent
+    Point, Extent,
+    domConstruct
 ) {
     return declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
         declaredClass: "modules.LayerSwipe",
@@ -198,6 +200,8 @@ function (
             var _self = this;
             // set type of swipe tool
             _self._setSwipeType();
+            // move domnode into map layers node
+            domConstruct.place(this.domNode, this.map._layersDiv, 'last');
             // swipe it
             _self._swipe();
             // clip it
