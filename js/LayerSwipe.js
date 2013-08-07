@@ -74,33 +74,32 @@ function (
         },
         // start widget. called by user
         startup: function() {
-            var _self = this;
             // map not defined
-            if (!_self.map) {
-                _self.destroy();
+            if (!this.map) {
+                this.destroy();
                 return new Error('map required');
             }
             // if layers are set by ID string
-            for (var i = 0; i < _self.layers.length; i++) {
-                if (typeof _self.layers[i] === 'string') {
+            for (var i = 0; i < this.layers.length; i++) {
+                if (typeof this.layers[i] === 'string') {
                     // get layer
-                    _self.layers[i] = _self.map.getLayer(_self.layers[i]);
+                    this.layers[i] = this.map.getLayer(this.layers[i]);
                 }
             }
             // set layers
-            _self.set("layers", _self.layers);
+            this.set("layers", this.layers);
             // no layers set
-            if (!_self.layers.length) {
-                _self.destroy();
+            if (!this.layers.length) {
+                this.destroy();
                 return new Error('layer required');
             }
             // when map is loaded
-            if (_self.map.loaded) {
-                _self._init();
+            if (this.map.loaded) {
+                this._init();
             } else {
-                on.once(_self.map, "load", function() {
-                    _self._init();
-                });
+                on.once(this.map, "load", lang.hitch(this, function() {
+                    this._init();
+                }));
             }
         },
         // connections/subscriptions will be cleaned up during the destroy() lifecycle phase
@@ -138,76 +137,74 @@ function (
         },
         _setSwipeType: function() {
             // set the tool type
-            var _self = this;
             var moveBox, left, top;
-            if (_self.get("tool")) {
-                if (_self._swipeslider) {
-                    _self._swipeslider.destroy();
+            if (this.get("tool")) {
+                if (this._swipeslider) {
+                    this._swipeslider.destroy();
                 }
-                domClass.add(_self._moveableNode, _self.get("tool"));
-                moveBox = domGeom.getMarginBox(_self._moveableNode);
-                if (_self.get("tool") === "scope") {
-                    _self._swipeslider = new move.constrainedMoveable(_self._moveableNode, {
-                        handle: _self._moveableNode.id,
-                        constraints: lang.hitch(this, _self._mb),
+                domClass.add(this._moveableNode, this.get("tool"));
+                moveBox = domGeom.getMarginBox(this._moveableNode);
+                if (this.get("tool") === "scope") {
+                    this._swipeslider = new move.constrainedMoveable(this._moveableNode, {
+                        handle: this._moveableNode.id,
+                        constraints: lang.hitch(this, this._mb),
                         within: true
                     });
                     // set initial position
-                    left = (_self.map.width / 2) - (moveBox.w / 2);
-                    top = (_self.map.height / 2) - (moveBox.h / 2);
-                    if (_self.get("toolOffsetTop")) {
-                        top = _self.get("toolOffsetTop");
+                    left = (this.map.width / 2) - (moveBox.w / 2);
+                    top = (this.map.height / 2) - (moveBox.h / 2);
+                    if (this.get("toolOffsetTop")) {
+                        top = this.get("toolOffsetTop");
                     }
-                    if (_self.get("toolOffsetLeft")) {
-                        left = _self.get("toolOffsetLeft");
+                    if (this.get("toolOffsetLeft")) {
+                        left = this.get("toolOffsetLeft");
                     }
-                } else if (_self.get("tool") === "horizontal") {
+                } else if (this.get("tool") === "horizontal") {
                     // create movable
-                    _self._swipeslider = new move.parentConstrainedMoveable(_self._moveableNode, {
+                    this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
                         within: true
                     });
                     // set initial position
                     left = 0;
-                    top = (_self.map.height / 4) - (moveBox.h / 2);
-                    if (_self.get("toolOffsetTop")) {
-                        top = _self.get("toolOffsetTop");
+                    top = (this.map.height / 4) - (moveBox.h / 2);
+                    if (this.get("toolOffsetTop")) {
+                        top = this.get("toolOffsetTop");
                     }
                     // set clip var
-                    _self._clipval = top;
+                    this._clipval = top;
                 } else {
                     // create movable
-                    _self._swipeslider = new move.parentConstrainedMoveable(_self._moveableNode, {
+                    this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
                         within: true
                     });
                     // set initial position
-                    left = (_self.map.width / 4) - (moveBox.w / 2);
+                    left = (this.map.width / 4) - (moveBox.w / 2);
                     top = 0;
-                    if (_self.get("toolOffsetLeft")) {
-                        left = _self.get("toolOffsetLeft");
+                    if (this.get("toolOffsetLeft")) {
+                        left = this.get("toolOffsetLeft");
                     }
                     // set clip var
-                    _self._clipval = left;
+                    this._clipval = left;
                 }
-                domStyle.set(_self._moveableNode, {
+                domStyle.set(this._moveableNode, {
                     top: top + "px",
                     left: left + "px"
                 });
             }
         },
         _init: function() {
-            var _self = this;
             // set type of swipe tool
-            _self._setSwipeType();
+            this._setSwipeType();
             // move domnode into map layers node
             domConstruct.place(this.domNode, this.map._layersDiv, 'last');
             // swipe it
-            _self._swipe();
+            this._swipe();
             // clip it
-            _self._setupEvents();
+            this._setupEvents();
             // we're ready
-            _self.onLoad();
+            this.onLoad();
         },
         _removeEvents: function() {
             if (this._listeners.length) {
@@ -235,35 +232,34 @@ function (
             }
         },
         _setupEvents: function() {
-            var _self = this;
-            _self._removeEvents();
+            this._removeEvents();
             // swipe move
-            _self._swipeMove = on.pausable(_self._swipeslider, 'Move', function() {
-                _self._setClipValue();
-                _self._swipe();
-            });
-            _self._listeners.push(_self._swipeMove);
+            this._swipeMove = on.pausable(this._swipeslider, 'Move', lang.hitch(this, function() {
+                this._setClipValue();
+                this._swipe();
+            }));
+            this._listeners.push(this._swipeMove);
             // done panning
-            _self._swipePanEnd = on.pausable(_self.map, 'pan-end', function() {
-                _self._swipe();
-            });
-            _self._listeners.push(_self._swipePanEnd);
+            this._swipePanEnd = on.pausable(this.map, 'pan-end', lang.hitch(this, function() {
+                this._swipe();
+            }));
+            this._listeners.push(this._swipePanEnd);
             // map graphics have been updated
-            _self._mapUpdateEnd = on.pausable(_self.map, 'update-end', function() {
-                _self._swipe();
-            });
-            _self._listeners.push(_self._mapUpdateEnd);
+            this._mapUpdateEnd = on.pausable(this.map, 'update-end', lang.hitch(this, function() {
+                this._swipe();
+            }));
+            this._listeners.push(this._mapUpdateEnd);
             // css panning
-            if (_self.map.navigationMode === "css-transforms") {
-                _self._swipePan = on.pausable(_self.map, 'pan', function() {
-                    _self._swipe();
-                });
-                _self._listeners.push(_self._swipePan);
+            if (this.map.navigationMode === "css-transforms") {
+                this._swipePan = on.pausable(this.map, 'pan', lang.hitch(this, function() {
+                    this._swipe();
+                }));
+                this._listeners.push(this._swipePan);
             }
             // scope has been clicked
-            _self._toolClick = on.pausable(_self._moveableNode, 'click', function(evt) {
-                if (_self._clickCoords && _self._clickCoords.x === evt.x && _self._clickCoords.y === evt.y) {
-                    var position = domGeom.position(_self.map.root, true);
+            this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function(evt) {
+                if (this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
+                    var position = domGeom.position(this.map.root, true);
                     var x = evt.pageX - position.x;
                     var y = evt.pageY - position.y;
                     evt.x = x;
@@ -273,38 +269,37 @@ function (
                         y: y
                     };
                     evt.type = "click";
-                    evt.mapPoint = _self.map.toMap(new Point(x, y, _self.map.spatialReference));
-                    _self.map.onClick(evt, "other");
+                    evt.mapPoint = this.map.toMap(new Point(x, y, this.map.spatialReference));
+                    this.map.onClick(evt, "other");
                 }
-                _self._clickCoords = null;
-            });
-            _self._listeners.push(_self._toolClick);
+                this._clickCoords = null;
+            }));
+            this._listeners.push(this._toolClick);
             // scope mouse down click
-            _self._evtCoords = on.pausable(_self._swipeslider, "MouseDown", function(evt) {
-                _self._clickCoords = {
+            this._evtCoords = on.pausable(this._swipeslider, "MouseDown", lang.hitch(this, function(evt) {
+                this._clickCoords = {
                     x: evt.x,
                     y: evt.y
                 };
-            });
-            _self._listeners.push(_self._evtCoords);
+            }));
+            this._listeners.push(this._evtCoords);
         },
         _swipe: function() {
-            var _self = this;
             // each layer
-            for (var i = 0; i < _self.layers.length; i++) {
+            for (var i = 0; i < this.layers.length; i++) {
                 var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
-                if (_self.get("tool") === "vertical") {
-                    layerBox = domGeom.getMarginBox(_self.layers[i]._div);
-                    mapBox = domGeom.getMarginBox(_self.map.root);
+                if (this.get("tool") === "vertical") {
+                    layerBox = domGeom.getMarginBox(this.layers[i]._div);
+                    mapBox = domGeom.getMarginBox(this.map.root);
                     if (layerBox.l > 0) {
-                        rightval = _self._clipval - Math.abs(layerBox.l);
+                        rightval = this._clipval - Math.abs(layerBox.l);
                         leftval = -(layerBox.l);
                     } else if (layerBox.l < 0) {
                         leftval = 0;
-                        rightval = _self._clipval + Math.abs(layerBox.l);
+                        rightval = this._clipval + Math.abs(layerBox.l);
                     } else {
                         leftval = 0;
-                        rightval = _self._clipval;
+                        rightval = this._clipval;
                     }
                     if (layerBox.t > 0) {
                         topval = -(layerBox.t);
@@ -316,18 +311,18 @@ function (
                         topval = 0;
                         bottomval = mapBox.h;
                     }
-                } else if (_self.get("tool") === "horizontal") {
-                    layerBox = domGeom.getMarginBox(_self.layers[i]._div);
-                    mapBox = domGeom.getMarginBox(_self.map.root);
+                } else if (this.get("tool") === "horizontal") {
+                    layerBox = domGeom.getMarginBox(this.layers[i]._div);
+                    mapBox = domGeom.getMarginBox(this.map.root);
                     if (layerBox.t > 0) {
-                        bottomval = _self._clipval - Math.abs(layerBox.t);
+                        bottomval = this._clipval - Math.abs(layerBox.t);
                         topval = -(layerBox.t);
                     } else if (layerBox.t < 0) {
                         topval = 0;
-                        bottomval = _self._clipval + Math.abs(layerBox.t);
+                        bottomval = this._clipval + Math.abs(layerBox.t);
                     } else {
                         topval = 0;
-                        bottomval = _self._clipval;
+                        bottomval = this._clipval;
                     }
                     if (layerBox.l > 0) {
                         leftval = -(layerBox.l);
@@ -339,36 +334,36 @@ function (
                         leftval = 0;
                         rightval = mapBox.w;
                     }
-                } else if (_self.get("tool") === "scope") {
-                    moveBox = domGeom.getMarginBox(_self._moveableNode);
+                } else if (this.get("tool") === "scope") {
+                    moveBox = domGeom.getMarginBox(this._moveableNode);
                     leftval = moveBox.l;
                     rightval = leftval + moveBox.w;
                     topval = moveBox.t;
                     bottomval = topval + moveBox.h;
-                    if (_self.toolClip) {
-                        leftval += _self.toolClip;
-                        rightval += -_self.toolClip;
-                        topval += _self.toolClip;
-                        bottomval += -_self.toolClip;
+                    if (this.toolClip) {
+                        leftval += this.toolClip;
+                        rightval += -this.toolClip;
+                        topval += this.toolClip;
+                        bottomval += -this.toolClip;
                     }
                 }
                 // graphics layer
-                if (_self.layers[i].graphics && _self.layers[i].graphics.length) {
+                if (this.layers[i].graphics && this.layers[i].graphics.length) {
                     var ll, ur;
                     if (this.get("tool") === "vertical") {
-                        ll = _self.map.toMap(new Point(0, _self.map.height, _self.map.spatialReference));
-                        ur = _self.map.toMap(new Point(_self._clipval, 0, _self.map.spatialReference));
+                        ll = this.map.toMap(new Point(0, this.map.height, this.map.spatialReference));
+                        ur = this.map.toMap(new Point(this._clipval, 0, this.map.spatialReference));
                     } else if (this.get("tool") === "horizontal") {
-                        ll = _self.map.toMap(new Point(0, _self._clipval, _self.map.spatialReference));
-                        ur = _self.map.toMap(new Point(_self.map.width, 0, _self.map.spatialReference));
+                        ll = this.map.toMap(new Point(0, this._clipval, this.map.spatialReference));
+                        ur = this.map.toMap(new Point(this.map.width, 0, this.map.spatialReference));
                     } else if (this.get("tool") === "scope") {
-                        ll = _self.map.toMap(new Point(leftval, bottomval, _self.map.spatialReference));
-                        ur = _self.map.toMap(new Point(rightval, topval, _self.map.spatialReference));
+                        ll = this.map.toMap(new Point(leftval, bottomval, this.map.spatialReference));
+                        ur = this.map.toMap(new Point(rightval, topval, this.map.spatialReference));
                     }
-                    var leftExtent = new Extent(ll.x, ll.y, ur.x, ur.y, _self.map.spatialReference);
+                    var leftExtent = new Extent(ll.x, ll.y, ur.x, ur.y, this.map.spatialReference);
                     if (leftExtent) {
-                        for (var k = 0; k < _self.layers[i].graphics.length; k++) {
-                            var graphic = _self.layers[i].graphics[k];
+                        for (var k = 0; k < this.layers[i].graphics.length; k++) {
+                            var graphic = this.layers[i].graphics[k];
                             var center = graphic.geometry.type === 'point' ? graphic.geometry : graphic.geometry.getExtent().getCenter();
                             if (leftExtent.contains(center)) {
                                 graphic.show();
@@ -377,7 +372,7 @@ function (
                             }
                         }
                     }
-                } else if (_self.layers[i]._div) {
+                } else if (this.layers[i]._div) {
                     // clip div
                     if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
                         // If CSS Transformation is applied to the layer (i.e. swipediv),
@@ -385,7 +380,7 @@ function (
                         // accordingly
                         var tx = 0,
                             ty = 0;
-                        if (_self.map.navigationMode === "css-transforms") {
+                        if (this.map.navigationMode === "css-transforms") {
                             var prefix = "";
                             if (sniff("webkit")) {
                                 prefix = "-webkit-";
@@ -399,7 +394,7 @@ function (
                             if (sniff("opera")) {
                                 prefix = "-o-";
                             }
-                            var transformValue = _self.layers[i]._div.style.getPropertyValue(prefix + "transform");
+                            var transformValue = this.layers[i]._div.style.getPropertyValue(prefix + "transform");
                             if (transformValue) {
                                 if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
                                     transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
@@ -421,15 +416,14 @@ function (
                         //Syntax for clip "rect(top,right,bottom,left)"
                         //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
                         var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
-                        domStyle.set(_self.layers[i]._div, "clip", clipstring);
+                        domStyle.set(this.layers[i]._div, "clip", clipstring);
                     }
                 }
             }
         },
         _updateThemeWatch: function(attr, oldVal, newVal) {
-            var _self = this;
-            domClass.remove(_self.domNode, oldVal);
-            domClass.add(_self.domNode, newVal);
+            domClass.remove(this.domNode, oldVal);
+            domClass.add(this.domNode, newVal);
         },
         _tool: function(name, oldValue) {
             // remove old css class
