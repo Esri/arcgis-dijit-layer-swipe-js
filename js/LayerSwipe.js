@@ -1,4 +1,5 @@
 define([
+    "dojo/Evented",
     "dojo/_base/declare",
     "dojo/_base/lang",
     "dijit/_WidgetBase",
@@ -8,7 +9,6 @@ define([
     // load template
     "dojo/text!./templates/LayerSwipe.html",
     "dojo/i18n!./nls/LayerSwipe",
-    "dojo/dom",
     "dojo/dom-class",
     "dojo/dom-style",
     "dojo/dnd/move",
@@ -19,12 +19,13 @@ define([
     "dojo/dom-construct"
 ],
 function (
+    Evented,
     declare,
     lang,
     _WidgetBase, _OnDijitClickMixin, _TemplatedMixin,
     on,
     dijitTemplate, i18n,
-    dom, domClass, domStyle,
+    domClass, domStyle,
     move,
     sniff,
     domGeom,
@@ -32,17 +33,17 @@ function (
     domConstruct
 ) {
     return declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
-        declaredClass: "modules.LayerSwipe",
+        declaredClass: "esri.dijit.LayerSwipe",
         templateString: dijitTemplate,
         options: {
             theme: "LayerSwipe",
             map: null,
             layers: [],
             enabled: true,
-            tool: "vertical",
-            toolClip: 9,
-            toolOffsetTop: null,
-            toolOffsetLeft: null
+            type: "vertical",
+            clip: 9,
+            top: null,
+            left: null
         },
         // lifecycle: 1
         constructor: function(options, srcRefNode) {
@@ -54,16 +55,16 @@ function (
             // properties
             this.set("map", this.options.map);
             this.set("layers", this.options.layers);
-            this.set("toolOffsetTop", this.options.toolOffsetTop);
-            this.set("toolOffsetLeft", this.options.toolOffsetLeft);
+            this.set("top", this.options.top);
+            this.set("left", this.options.left);
             this.set("theme", this.options.theme);
             this.set("enabled", this.options.enabled);
-            this.set("tool", this.options.tool);
-            this.set("toolClip", this.options.toolClip);
+            this.set("type", this.options.type);
+            this.set("clip", this.options.clip);
             // listeners
             this.watch("theme", this._updateThemeWatch);
             this.watch("enabled", this._enabled);
-            this.watch("tool", this._tool);
+            this.watch("type", this._type);
             // classes
             this._css = {
                 handleContainer: "handleContainer",
@@ -77,7 +78,7 @@ function (
             // map not defined
             if (!this.map) {
                 this.destroy();
-                return new Error('map required');
+                console.log('map required');
             }
             // if layers are set by ID string
             for (var i = 0; i < this.layers.length; i++) {
@@ -91,7 +92,7 @@ function (
             // no layers set
             if (!this.layers.length) {
                 this.destroy();
-                return new Error('layer required');
+                console.log('layer required');
             }
             // when map is loaded
             if (this.map.loaded) {
@@ -125,7 +126,7 @@ function (
         /* Private Functions */
         /* ---------------- */
         _mb: function() {
-            // set containing coordinates for scope tool
+            // set containing coordinates for scope type
             var mapBox = domGeom.getMarginBox(this.map.root);
             var b = {};
             b.t = 0;
@@ -135,15 +136,15 @@ function (
             return b;
         },
         _setSwipeType: function() {
-            // set the tool type
+            // set the type
             var moveBox, left, top;
-            if (this.get("tool")) {
+            if (this.get("type")) {
                 if (this._swipeslider) {
                     this._swipeslider.destroy();
                 }
-                domClass.add(this._moveableNode, this.get("tool"));
+                domClass.add(this._moveableNode, this.get("type"));
                 moveBox = domGeom.getMarginBox(this._moveableNode);
-                if (this.get("tool") === "scope") {
+                if (this.get("type") === "scope") {
                     this._swipeslider = new move.constrainedMoveable(this._moveableNode, {
                         handle: this._moveableNode.id,
                         constraints: lang.hitch(this, this._mb),
@@ -152,13 +153,13 @@ function (
                     // set initial position
                     left = (this.map.width / 2) - (moveBox.w / 2);
                     top = (this.map.height / 2) - (moveBox.h / 2);
-                    if (this.get("toolOffsetTop")) {
-                        top = this.get("toolOffsetTop");
+                    if (this.get("top")) {
+                        top = this.get("top");
                     }
-                    if (this.get("toolOffsetLeft")) {
-                        left = this.get("toolOffsetLeft");
+                    if (this.get("left")) {
+                        left = this.get("left");
                     }
-                } else if (this.get("tool") === "horizontal") {
+                } else if (this.get("type") === "horizontal") {
                     // create movable
                     this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
@@ -167,8 +168,8 @@ function (
                     // set initial position
                     left = 0;
                     top = (this.map.height / 4) - (moveBox.h / 2);
-                    if (this.get("toolOffsetTop")) {
-                        top = this.get("toolOffsetTop");
+                    if (this.get("top")) {
+                        top = this.get("top");
                     }
                     // set clip var
                     this._clipval = top;
@@ -181,8 +182,8 @@ function (
                     // set initial position
                     left = (this.map.width / 4) - (moveBox.w / 2);
                     top = 0;
-                    if (this.get("toolOffsetLeft")) {
-                        left = this.get("toolOffsetLeft");
+                    if (this.get("left")) {
+                        left = this.get("left");
                     }
                     // set clip var
                     this._clipval = left;
@@ -194,7 +195,7 @@ function (
             }
         },
         _init: function() {
-            // set type of swipe tool
+            // set type of swipe
             this._setSwipeType();
             // move domnode into map layers node
             domConstruct.place(this.domNode, this.map._layersDiv, 'last');
@@ -216,14 +217,14 @@ function (
         },
         _setClipValue: function() {
             var moveBox = domGeom.getMarginBox(this._moveableNode);
-            if (this.get("tool") === "vertical") {
+            if (this.get("type") === "vertical") {
                 var leftInt = moveBox.l;
                 if (leftInt <= 0 || leftInt >= (this.map.width)) {
                     return;
                 }
                 this._clipval = leftInt;
             }
-            if (this.get("tool") === "horizontal") {
+            if (this.get("type") === "horizontal") {
                 var topInt = moveBox.t;
                 if (topInt <= 0 || topInt >= (this.map.height)) {
                     return;
@@ -289,7 +290,7 @@ function (
             // each layer
             for (var i = 0; i < this.layers.length; i++) {
                 var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
-                if (this.get("tool") === "vertical") {
+                if (this.get("type") === "vertical") {
                     layerBox = domGeom.getMarginBox(this.layers[i]._div);
                     mapBox = domGeom.getMarginBox(this.map.root);
                     if (layerBox.l > 0) {
@@ -312,7 +313,7 @@ function (
                         topval = 0;
                         bottomval = mapBox.h;
                     }
-                } else if (this.get("tool") === "horizontal") {
+                } else if (this.get("type") === "horizontal") {
                     layerBox = domGeom.getMarginBox(this.layers[i]._div);
                     mapBox = domGeom.getMarginBox(this.map.root);
                     if (layerBox.t > 0) {
@@ -335,29 +336,29 @@ function (
                         leftval = 0;
                         rightval = mapBox.w;
                     }
-                } else if (this.get("tool") === "scope") {
+                } else if (this.get("type") === "scope") {
                     moveBox = domGeom.getMarginBox(this._moveableNode);
                     leftval = moveBox.l;
                     rightval = leftval + moveBox.w;
                     topval = moveBox.t;
                     bottomval = topval + moveBox.h;
-                    if (this.toolClip) {
-                        leftval += this.toolClip;
-                        rightval += -this.toolClip;
-                        topval += this.toolClip;
-                        bottomval += -this.toolClip;
+                    if (this.clip) {
+                        leftval += this.clip;
+                        rightval += -this.clip;
+                        topval += this.clip;
+                        bottomval += -this.clip;
                     }
                 }
                 // graphics layer
                 if (this.layers[i].graphics && this.layers[i].graphics.length) {
                     var ll, ur;
-                    if (this.get("tool") === "vertical") {
+                    if (this.get("type") === "vertical") {
                         ll = this.map.toMap(new Point(0, this.map.height, this.map.spatialReference));
                         ur = this.map.toMap(new Point(this._clipval, 0, this.map.spatialReference));
-                    } else if (this.get("tool") === "horizontal") {
+                    } else if (this.get("type") === "horizontal") {
                         ll = this.map.toMap(new Point(0, this._clipval, this.map.spatialReference));
                         ur = this.map.toMap(new Point(this.map.width, 0, this.map.spatialReference));
-                    } else if (this.get("tool") === "scope") {
+                    } else if (this.get("type") === "scope") {
                         ll = this.map.toMap(new Point(leftval, bottomval, this.map.spatialReference));
                         ur = this.map.toMap(new Point(rightval, topval, this.map.spatialReference));
                     }
@@ -426,12 +427,12 @@ function (
             domClass.remove(this.domNode, oldVal);
             domClass.add(this.domNode, newVal);
         },
-        _tool: function(name, oldValue) {
+        _type: function(name, oldValue) {
             // remove old css class
             if (oldValue) {
                 domClass.remove(this._moveableNode, oldValue);
             }
-            // set type of swipe tool
+            // set type of swipe type
             this._setSwipeType();
             // swipe it
             this._enabled();
