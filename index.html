@@ -66,9 +66,9 @@
 	Toggle Widget Enabled
 </div>
 <ul class="changeTool">
-	<li><input id="vTool" type="radio" name="tool" value="vertical" checked="checked"/><label for="vTool">Vertical</label></li>
-	<li><input id="hTool" type="radio" name="tool" value="horizontal"/><label for="hTool">Horizontal</label></li>
-	<li><input id="sTool" type="radio" name="tool" value="scope"/><label for="sTool">Scope</label></li>
+	<li><input id="vTool" type="radio" name="type" value="vertical" checked="checked"/><label for="vTool">Vertical</label></li>
+	<li><input id="hTool" type="radio" name="type" value="horizontal"/><label for="hTool">Horizontal</label></li>
+	<li><input id="sTool" type="radio" name="type" value="scope"/><label for="sTool">Scope</label></li>
 </ul>
 <div style="clear:both;">
 </div>
@@ -127,7 +127,7 @@
                 // get layer by id
                 var layer = map.getLayer(id);
                 swipeWidget = new LayerSwipe({
-                    tool: "vertical",
+                    type: "vertical",
                     map: map,
                     layers: [layer]
                 }, "LayerSwipe");
@@ -138,8 +138,8 @@
                 on(dom.byId('toggleEnabled'), 'click', function(){
                     swipeWidget.set("enabled", !swipeWidget.get("enabled")); 
                 });
-                on(query("input[name=tool]"), 'change', function(evt){
-                    swipeWidget.set("tool", evt.target.value);
+                on(query("input[name=type]"), 'change', function(evt){
+                    swipeWidget.set("type", evt.target.value);
                 });
             }), lang.hitch(this, function (error) {
                 //an error occurred - notify the user. In this example we pull the string from the 
@@ -183,7 +183,7 @@
                 // get layer by id
                 var layer = map2.getLayer(id);
                 swipeWidget2 = new LayerSwipe({
-                    tool: "scope",
+                    type: "scope",
                     map: map2,
                     layers: [layer, id2]
                 }, "LayerSwipe2");
