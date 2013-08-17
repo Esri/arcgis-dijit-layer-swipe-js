@@ -110,9 +110,8 @@ function (
         /* ---------------- */
         /* Public Events */
         /* ---------------- */
-        onLoad: function() {
-            this.set("loaded", true);
-        },
+        // load
+        // swipe
         /* ---------------- */
         /* Public Functions */
         /* ---------------- */
@@ -204,7 +203,8 @@ function (
             // clip it
             this._setupEvents();
             // we're ready
-            this.onLoad();
+            this.set("loaded", true);
+            this.emit("load", {});
         },
         _removeEvents: function() {
             if (this._listeners.length) {
@@ -285,6 +285,7 @@ function (
             this._listeners.push(this._evtCoords);
         },
         _swipe: function() {
+            this.emit("swipe", {});
             // each layer
             for (var i = 0; i < this.layers.length; i++) {
                 var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
