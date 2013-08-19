@@ -78,7 +78,7 @@ function (
             // map not defined
             if (!this.map) {
                 this.destroy();
-                console.log('map required');
+                console.log('LayerSwipe::map required');
             }
             // if layers are set by ID string
             for (var i = 0; i < this.layers.length; i++) {
@@ -92,7 +92,7 @@ function (
             // no layers set
             if (!this.layers.length) {
                 this.destroy();
-                console.log('layer required');
+                console.log('LayerSwipe::layer required');
             }
             // when map is loaded
             if (this.map.loaded) {
