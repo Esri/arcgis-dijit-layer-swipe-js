@@ -18,7 +18,9 @@ define([
     "dojo/dom-geometry",
     "esri/geometry/Point",
     "esri/geometry/Extent",
-    "dojo/dom-construct"
+    "dojo/dom-construct",
+    "dojo/Deferred",
+    "dojo/promise/all"
 ],
 function (
     Evented,
@@ -33,7 +35,9 @@ function (
     sniff,
     domGeom,
     Point, Extent,
-    domConstruct
+    domConstruct,
+    Deferred,
+    all
 ) {
     var Widget = declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
         declaredClass: "esri.dijit.LayerSwipe",
@@ -83,11 +87,17 @@ function (
                 this.destroy();
                 console.log('LayerSwipe::map required');
             }
+            var loadPromises = [];
             // if layers are set by ID string
             for (var i = 0; i < this.layers.length; i++) {
                 if (typeof this.layers[i] === 'string') {
                     // get layer
                     this.layers[i] = this.map.getLayer(this.layers[i]);
+                    if(!this.layers[i].loaded){
+                        var def = new Deferred();
+                        this._layerLoadedPromise(i, def);
+                        loadPromises.push(def);
+                    }
                 }
             }
             // set layers
@@ -98,12 +108,20 @@ function (
                 console.log('LayerSwipe::layer required');
             }
             // when map is loaded
-            if (this.map.loaded) {
-                this._init();
-            } else {
+            if (!this.map.loaded) {
+                var mapLoadDef = new Deferred();
                 on.once(this.map, "load", lang.hitch(this, function() {
-                    this._init();
+                    mapLoadDef.resolve('map loaded');
                 }));
+                loadPromises.push(mapLoadDef);
+            }
+            if(!loadPromises.length){
+                this._init();
+            }
+            else{
+                all(loadPromises).then(lang.hitch(this, function() {
+                    this._init();
+                }));   
             }
         },
         // connections/subscriptions will be cleaned up during the destroy() lifecycle phase
@@ -128,6 +146,11 @@ function (
         /* ---------------- */
         /* Private Functions */
         /* ---------------- */
+        _layerLoadedPromise: function(i, def){
+            on.once(this.layers[i], 'load', function(){
+                def.resolve('layer loaded');
+            });
+        },
         _mb: function() {
             // set containing coordinates for scope type
             var mapBox = domGeom.getMarginBox(this.map.root);
@@ -262,7 +285,7 @@ function (
             }
             // scope has been clicked
             this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function(evt) {
-                if (this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
+                if (this.map.hasOwnProperty('onClick') && typeof this.map.onClick === 'function' && this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
                     var position = domGeom.position(this.map.root, true);
                     var x = evt.pageX - position.x;
                     var y = evt.pageY - position.y;
