@@ -2,6 +2,8 @@ define([
     "dojo/Evented",
     "dojo/_base/declare",
     "dojo/_base/lang",
+    "dojo/has",
+    "esri/kernel",
     "dijit/_WidgetBase",
     "dijit/_OnDijitClickMixin",
     "dijit/_TemplatedMixin",
@@ -22,6 +24,7 @@ function (
     Evented,
     declare,
     lang,
+    has, esriNS,
     _WidgetBase, _OnDijitClickMixin, _TemplatedMixin,
     on,
     dijitTemplate, i18n,
@@ -32,7 +35,7 @@ function (
     Point, Extent,
     domConstruct
 ) {
-    return declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
+    var Widget = declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
         declaredClass: "esri.dijit.LayerSwipe",
         templateString: dijitTemplate,
         options: {
@@ -473,4 +476,8 @@ function (
             }
         }
     });
+    if (has("extend-esri")) {
+        lang.setObject("dijit.LayerSwipe", Widget, esriNS);
+    }
+    return Widget;
 });
