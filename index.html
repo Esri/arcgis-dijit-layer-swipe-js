@@ -84,24 +84,19 @@
 <h2>All Options</h2>
 <script src="https://gist.github.com/driskull/5995582.js"></script>
 <script type="text/javascript">
-        // get current path
-        var pathRegex = new RegExp(/\/[^\/]+$/);
-        var locationPath = location.pathname.replace(pathRegex, '');
-        // Dojo Config
-        var dojoConfig = {
-            parseOnLoad: true,
-            packages: [
-                {
-                    name: "modules",
-                    location: locationPath + '/js/'
-                },
-                {
-                    name: "zesri",
-                    location: locationPath + '/js/'
-                }
-            ]
-        };
-    </script>
+    var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+    var dojoConfig = {
+        // The locationPath logic below may look confusing but all its doing is 
+        // enabling us to load the api from a CDN and load local modules from the correct location.
+        packages: [{
+            name: "modules",
+            location: package_path + '/js'
+        }, {
+            name: "zesri",
+            location: package_path + '/js'
+        }]
+    };
+</script>
 <script src="http://js.arcgis.com/3.6/" type="text/javascript"></script>
 <script type="text/javascript">
         var swipeWidget, swipeWidget2;
