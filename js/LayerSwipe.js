@@ -14,6 +14,7 @@ define([
     "dojo/dom-class",
     "dojo/dom-style",
     "dojo/dnd/move",
+    "dojo/dnd/Mover",
     "dojo/sniff",
     "dojo/dom-geometry",
     "esri/geometry/Point",
@@ -32,6 +33,7 @@ function (
     dijitTemplate, i18n,
     domClass, domStyle,
     move,
+    Mover,
     sniff,
     domGeom,
     Point, Extent,
@@ -39,6 +41,41 @@ function (
     Deferred,
     all
 ) {
+    // patch subclass Mover and patch onFirstMove so that the swipe handle 
+    // doesn't jump when first moved
+    // remove if Dojo fixes this:  https://bugs.dojotoolkit.org/ticket/15322
+    // patchedMover is used three times in _setSwipeType
+    // 
+    // fix is in the default switch case:
+    //      l = m.l;
+    //      t = m.t;
+    var patchedMover = declare([Mover], {
+        onFirstMove: function(e){
+            var s = this.node.style, l, t, h = this.host;
+            switch(s.position){
+                case "relative":
+                case "absolute":
+                    l = Math.round(parseFloat(s.left)) || 0;
+                    t = Math.round(parseFloat(s.top)) || 0;
+                    break;
+                default:
+                    s.position = "absolute";    // enforcing the absolute mode
+                    var m = domGeom.getMarginBox(this.node);
+                    l = m.l;
+                    t = m.t;
+                    break;
+            }
+            this.marginBox.l = l - this.marginBox.l;
+            this.marginBox.t = t - this.marginBox.t;
+            if(h && h.onFirstMove){
+                h.onFirstMove(this, e);
+            }
+
+            // Disconnect touch.move that call this function
+            this.events.shift().remove();
+        }
+    });
+
     var Widget = declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
         declaredClass: "esri.dijit.LayerSwipe",
         templateString: dijitTemplate,
@@ -174,7 +211,8 @@ function (
                     this._swipeslider = new move.constrainedMoveable(this._moveableNode, {
                         handle: this._moveableNode.id,
                         constraints: lang.hitch(this, this._mb),
-                        within: true
+                        within: true,
+                        mover: patchedMover
                     });
                     // set initial position
                     left = (this.map.width / 2) - (moveBox.w / 2);
@@ -189,7 +227,8 @@ function (
                     // create movable
                     this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
-                        within: true
+                        within: true,
+                        mover: patchedMover
                     });
                     // set initial position
                     left = 0;
@@ -203,7 +242,8 @@ function (
                     // create movable
                     this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
-                        within: true
+                        within: true,
+                        mover: patchedMover
                     });
                     // set initial position
                     left = (this.map.width / 4) - (moveBox.w / 2);
