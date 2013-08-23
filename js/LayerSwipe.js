@@ -76,7 +76,7 @@ function (
         }
     });
 
-    var Widget = declare([Evented, _WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
+    var Widget = declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin, Evented], {
         declaredClass: "esri.dijit.LayerSwipe",
         templateString: dijitTemplate,
         options: {
