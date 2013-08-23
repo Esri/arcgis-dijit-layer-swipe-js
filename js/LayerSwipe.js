@@ -76,7 +76,7 @@ function (
         }
     });
 
-    var Widget = declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
+    var Widget = declare([Evented, _WidgetBase, _OnDijitClickMixin, _TemplatedMixin], {
         declaredClass: "esri.dijit.LayerSwipe",
         templateString: dijitTemplate,
         options: {
@@ -352,7 +352,6 @@ function (
             this._listeners.push(this._evtCoords);
         },
         _swipe: function() {
-            this.emit("swipe", {});
             // each layer
             for (var i = 0; i < this.layers.length; i++) {
                 var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
@@ -488,6 +487,7 @@ function (
                     }
                 }
             }
+            this.emit("swipe", {});
         },
         _updateThemeWatch: function(attr, oldVal, newVal) {
             domClass.remove(this.domNode, oldVal);
