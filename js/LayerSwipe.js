@@ -166,6 +166,10 @@ function (
             this._removeEvents();
             this.inherited(arguments);
         },
+        swipe: function(){
+            this._setClipValue();
+            this._swipe();  
+        },
         /* ---------------- */
         /* Public Events */
         /* ---------------- */
@@ -354,7 +358,7 @@ function (
         _swipe: function() {
             // each layer
             for (var i = 0; i < this.layers.length; i++) {
-                var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
+                var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, leftExtent;
                 if (this.get("type") === "vertical") {
                     layerBox = domGeom.getMarginBox(this.layers[i]._div);
                     mapBox = domGeom.getMarginBox(this.map.root);
@@ -427,7 +431,7 @@ function (
                         ll = this.map.toMap(new Point(leftval, bottomval, this.map.spatialReference));
                         ur = this.map.toMap(new Point(rightval, topval, this.map.spatialReference));
                     }
-                    var leftExtent = new Extent(ll.x, ll.y, ur.x, ur.y, this.map.spatialReference);
+                    leftExtent = new Extent(ll.x, ll.y, ur.x, ur.y, this.map.spatialReference);
                     if (leftExtent) {
                         for (var k = 0; k < this.layers[i].graphics.length; k++) {
                             var graphic = this.layers[i].graphics[k];
@@ -486,8 +490,16 @@ function (
                         domStyle.set(this.layers[i]._div, "clip", clipstring);
                     }
                 }
+                this.emit("swipe", {
+                    layer: this.layers[i],
+                    left: leftval,
+                    right: rightval,
+                    top: topval,
+                    bottom: bottomval,
+                    extent: leftExtent || null,
+                    type: this.get("type")
+                });
             }
-            this.emit("swipe", {});
         },
         _updateThemeWatch: function(attr, oldVal, newVal) {
             domClass.remove(this.domNode, oldVal);
