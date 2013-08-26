@@ -140,6 +140,11 @@
                 on(query("input[name=type]"), 'change', function(evt){
                     swipeWidget.set("type", evt.target.value);
                 });
+                
+                on(swipeWidget, 'swipe', function(obj){
+                    console.log(obj);
+                });
+                
             }), lang.hitch(this, function (error) {
                 //an error occurred - notify the user. In this example we pull the string from the 
                 //resource.js file located in the nls folder because we've set the application up 
@@ -187,6 +192,13 @@
                     layers: [layer, id2]
                 }, "LayerSwipe2");
                 swipeWidget2.startup();
+                
+                on(swipeWidget2, 'swipe', function(obj){
+                    console.log(obj);
+                });
+                
+                
+                
             }), lang.hitch(this, function (error) {
                 //an error occurred - notify the user. In this example we pull the string from the 
                 //resource.js file located in the nls folder because we've set the application up 
