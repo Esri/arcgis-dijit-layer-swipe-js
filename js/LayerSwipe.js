@@ -356,9 +356,12 @@ function (
             this._listeners.push(this._evtCoords);
         },
         _swipe: function() {
+            var emitObj = {
+                layers: []
+            };
             // each layer
             for (var i = 0; i < this.layers.length; i++) {
-                var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, leftExtent;
+                var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, leftExtent = null;
                 if (this.get("type") === "vertical") {
                     layerBox = domGeom.getMarginBox(this.layers[i]._div);
                     mapBox = domGeom.getMarginBox(this.map.root);
@@ -490,16 +493,17 @@ function (
                         domStyle.set(this.layers[i]._div, "clip", clipstring);
                     }
                 }
-                this.emit("swipe", {
+                var layerEmit = {
                     layer: this.layers[i],
                     left: leftval,
                     right: rightval,
                     top: topval,
                     bottom: bottomval,
-                    extent: leftExtent || null,
-                    type: this.get("type")
-                });
+                    extent: leftExtent
+                };
+                emitObj.layers.push(layerEmit);
             }
+            this.emit("swipe", emitObj);
         },
         _updateThemeWatch: function(attr, oldVal, newVal) {
             domClass.remove(this.domNode, oldVal);
