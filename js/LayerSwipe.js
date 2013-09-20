@@ -361,24 +361,27 @@ function (
             };
             // each layer
             for (var i = 0; i < this.layers.length; i++) {
-                var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, leftExtent = null;
+                var rightval, leftval, topval, bottomval, layerBox = null, moveBox, mapBox, leftExtent = null;
                 if (this.get("type") === "vertical") {
-                    layerBox = domGeom.getMarginBox(this.layers[i]._div);
+                    moveBox = domGeom.getMarginBox(this._moveableNode);
+                    if(this.layers[i]._div){
+                        layerBox = domGeom.getMarginBox(this.layers[i]._div);
+                    }
                     mapBox = domGeom.getMarginBox(this.map.root);
-                    if (layerBox.l > 0) {
+                    if (layerBox && layerBox.l > 0) {
                         rightval = this._clipval - Math.abs(layerBox.l);
                         leftval = -(layerBox.l);
-                    } else if (layerBox.l < 0) {
+                    } else if (layerBox && layerBox.l < 0) {
                         leftval = 0;
                         rightval = this._clipval + Math.abs(layerBox.l);
                     } else {
                         leftval = 0;
                         rightval = this._clipval;
                     }
-                    if (layerBox.t > 0) {
+                    if (layerBox && layerBox.t > 0) {
                         topval = -(layerBox.t);
                         bottomval = mapBox.h - layerBox.t;
-                    } else if (layerBox.t < 0) {
+                    } else if (layerBox && layerBox.t < 0) {
                         topval = 0;
                         bottomval = mapBox.h + Math.abs(layerBox.t);
                     } else {
@@ -386,22 +389,25 @@ function (
                         bottomval = mapBox.h;
                     }
                 } else if (this.get("type") === "horizontal") {
-                    layerBox = domGeom.getMarginBox(this.layers[i]._div);
+                    moveBox = domGeom.getMarginBox(this._moveableNode);
+                    if(this.layers[i]._div){
+                        layerBox = domGeom.getMarginBox(this.layers[i]._div);
+                    }
                     mapBox = domGeom.getMarginBox(this.map.root);
-                    if (layerBox.t > 0) {
+                    if (layerBox && layerBox.t > 0) {
                         bottomval = this._clipval - Math.abs(layerBox.t);
                         topval = -(layerBox.t);
-                    } else if (layerBox.t < 0) {
+                    } else if (layerBox && layerBox.t < 0) {
                         topval = 0;
                         bottomval = this._clipval + Math.abs(layerBox.t);
                     } else {
                         topval = 0;
                         bottomval = this._clipval;
                     }
-                    if (layerBox.l > 0) {
+                    if (layerBox && layerBox.l > 0) {
                         leftval = -(layerBox.l);
                         rightval = mapBox.w - layerBox.l;
-                    } else if (layerBox.l < 0) {
+                    } else if (layerBox && layerBox.l < 0) {
                         leftval = 0;
                         rightval = mapBox.w + Math.abs(layerBox.l);
                     } else {
