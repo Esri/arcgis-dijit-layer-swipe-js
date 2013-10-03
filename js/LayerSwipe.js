@@ -81,13 +81,10 @@ function (
         templateString: dijitTemplate,
         options: {
             theme: "LayerSwipe",
-            map: null,
             layers: [],
             enabled: true,
             type: "vertical",
-            clip: 9,
-            top: null,
-            left: null
+            clip: 9
         },
         // lifecycle: 1
         constructor: function(options, srcRefNode) {
@@ -221,10 +218,10 @@ function (
                     // set initial position
                     left = (this.map.width / 2) - (moveBox.w / 2);
                     top = (this.map.height / 2) - (moveBox.h / 2);
-                    if (this.get("top")) {
+                    if (typeof this.get("top") !== 'undefined') {
                         top = this.get("top");
                     }
-                    if (this.get("left")) {
+                    if (typeof this.get("left") !== 'undefined') {
                         left = this.get("left");
                     }
                 } else if (this.get("type") === "horizontal") {
@@ -237,7 +234,7 @@ function (
                     // set initial position
                     left = 0;
                     top = (this.map.height / 4) - (moveBox.h / 2);
-                    if (this.get("top")) {
+                    if (typeof this.get("top") !== 'undefined') {
                         top = this.get("top");
                     }
                     // set clip var
@@ -252,7 +249,7 @@ function (
                     // set initial position
                     left = (this.map.width / 4) - (moveBox.w / 2);
                     top = 0;
-                    if (this.get("left")) {
+                    if (typeof this.get("left") !== 'undefined') {
                         left = this.get("left");
                     }
                     // set clip var
@@ -361,7 +358,7 @@ function (
             };
             // each layer
             for (var i = 0; i < this.layers.length; i++) {
-                var rightval, leftval, topval, bottomval, layerBox = null, moveBox, mapBox, leftExtent = null;
+                var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, leftExtent;
                 if (this.get("type") === "vertical") {
                     moveBox = domGeom.getMarginBox(this._moveableNode);
                     if(this.layers[i]._div){
@@ -420,11 +417,11 @@ function (
                     rightval = leftval + moveBox.w;
                     topval = moveBox.t;
                     bottomval = topval + moveBox.h;
-                    if (this.clip) {
-                        leftval += this.clip;
-                        rightval += -this.clip;
-                        topval += this.clip;
-                        bottomval += -this.clip;
+                    if (typeof this.get("clip") !== 'undefined') {
+                        leftval += this.get("clip");
+                        rightval += -this.get("clip");
+                        topval += this.get("clip");
+                        bottomval += -this.get("clip");
                     }
                 }
                 // graphics layer
