@@ -384,6 +384,8 @@ function (
             if(this.layers && this.layers.length){
                 // each layer
                 for (var i = 0; i < this.layers.length; i++) {
+                    // layer node div
+                    var layerNode = this.layers[i]._div;
                     // position and extent variables
                     var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, leftExtent;
                     // movable node position
@@ -391,9 +393,9 @@ function (
                     // vertical and horizontal nodes
                     if(this.get("type") === "vertical" || this.get("type") === "horizontal"){
                         // if layer has a div
-                        if(this.layers[i]._div){
+                        if(layerNode){
                             // get layer node position
-                            layerBox = domGeom.getMarginBox(this.layers[i]._div);
+                            layerBox = domGeom.getMarginBox(layerNode);
                         }
                         // map node position
                         mapBox = domGeom.getMarginBox(this.map.root);
@@ -453,31 +455,34 @@ function (
                         }
                     }
                     // graphics layer
-                    if (this.layers[i].graphics && this.layers[i].graphics.length) {
-                        var ll, ur;
-                        if (this.get("type") === "vertical") {
-                            ll = this.map.toMap(new Point(0, this.map.height, this.map.spatialReference));
-                            ur = this.map.toMap(new Point(this._clipval, 0, this.map.spatialReference));
-                        } else if (this.get("type") === "horizontal") {
-                            ll = this.map.toMap(new Point(0, this._clipval, this.map.spatialReference));
-                            ur = this.map.toMap(new Point(this.map.width, 0, this.map.spatialReference));
-                        } else if (this.get("type") === "scope") {
-                            ll = this.map.toMap(new Point(leftval, bottomval, this.map.spatialReference));
-                            ur = this.map.toMap(new Point(rightval, topval, this.map.spatialReference));
-                        }
-                        leftExtent = new Extent(ll.x, ll.y, ur.x, ur.y, this.map.spatialReference);
-                        if (leftExtent) {
-                            for (var k = 0; k < this.layers[i].graphics.length; k++) {
-                                var graphic = this.layers[i].graphics[k];
-                                var center = graphic.geometry.type === 'point' ? graphic.geometry : graphic.geometry.getExtent().getCenter();
-                                if (leftExtent.contains(center)) {
-                                    graphic.show();
-                                } else {
-                                    graphic.hide();
+                    if (this.layers[i].graphics) {
+                        if(this.layers[i].graphics.length){
+                            var ll, ur;
+                            if (this.get("type") === "vertical") {
+                                ll = this.map.toMap(new Point(0, this.map.height, this.map.spatialReference));
+                                ur = this.map.toMap(new Point(this._clipval, 0, this.map.spatialReference));
+                            } else if (this.get("type") === "horizontal") {
+                                ll = this.map.toMap(new Point(0, this._clipval, this.map.spatialReference));
+                                ur = this.map.toMap(new Point(this.map.width, 0, this.map.spatialReference));
+                            } else if (this.get("type") === "scope") {
+                                ll = this.map.toMap(new Point(leftval, bottomval, this.map.spatialReference));
+                                ur = this.map.toMap(new Point(rightval, topval, this.map.spatialReference));
+                            }
+                            leftExtent = new Extent(ll.x, ll.y, ur.x, ur.y, this.map.spatialReference);
+                            if (leftExtent) {
+                                for (var k = 0; k < this.layers[i].graphics.length; k++) {
+                                    var graphic = this.layers[i].graphics[k];
+                                    var center = graphic.geometry.type === 'point' ? graphic.geometry : graphic.geometry.getExtent().getCenter();
+                                    if (leftExtent.contains(center)) {
+                                        graphic.show();
+                                    } else {
+                                        graphic.hide();
+                                    }
                                 }
                             }
                         }
-                    } else if (this.layers[i]._div) {
+                    // Non graphics layer
+                    } else if (layerNode) {
                         // clip div
                         if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
                             // If CSS Transformation is applied to the layer (i.e. swipediv),
@@ -499,29 +504,32 @@ function (
                                 if (sniff("opera")) {
                                     prefix = "-o-";
                                 }
-                                var transformValue = this.layers[i]._div.style.getPropertyValue(prefix + "transform");
-                                if (transformValue) {
-                                    if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
-                                        transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
-                                    } else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
-                                        transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+                                var divStyle = layerNode.style;
+                                if(divStyle){
+                                    var transformValue = divStyle.getPropertyValue(prefix + "transform");
+                                    if (transformValue) {
+                                        if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
+                                            transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+                                        } else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
+                                            transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+                                        }
+                                        try {
+                                            tx = parseFloat(transformValue[0]);
+                                            ty = parseFloat(transformValue[1]);
+                                        } catch (e) {
+                                            console.error(e);
+                                        }
+                                        leftval -= tx;
+                                        rightval -= tx;
+                                        topval -= ty;
+                                        bottomval -= ty;
                                     }
-                                    try {
-                                        tx = parseFloat(transformValue[0]);
-                                        ty = parseFloat(transformValue[1]);
-                                    } catch (e) {
-                                        console.error(e);
-                                    }
-                                    leftval -= tx;
-                                    rightval -= tx;
-                                    topval -= ty;
-                                    bottomval -= ty;
                                 }
+                                //Syntax for clip "rect(top,right,bottom,left)"
+                                //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
+                                var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
+                                domStyle.set(layerNode, "clip", clipstring);   
                             }
-                            //Syntax for clip "rect(top,right,bottom,left)"
-                            //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
-                            var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
-                            domStyle.set(this.layers[i]._div, "clip", clipstring);
                         }
                     }
                     var layerEmit = {
@@ -579,9 +587,10 @@ function (
                 domStyle.set(this.domNode, 'display', 'none');
                 // unclip layers
                 for (var i = 0; i < this.layers.length; i++) {
-                    if (this.layers[i]._div) {
+                    var layerNode = this.layers[i]._div;
+                    if (layerNode && !this.layers[i].graphics) {
                         var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
-                        domStyle.set(this.layers[i]._div, "clip", clipstring);
+                        domStyle.set(layerNode, "clip", clipstring);
                     }
                 }
             }
