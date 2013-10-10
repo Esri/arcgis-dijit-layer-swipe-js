@@ -582,9 +582,21 @@ function (
         },
         _unclipLayers: function() {
             for (var i = 0; i < this.layers.length; i++) {
+                // layer div
                 var layerNode = this.layers[i]._div;
+                // graphics layer 
+                if (this.layers[i].graphics) {
+                    // all graphics
+                    for (var k = 0; k < this.layers[i].graphics.length; k++) {
+                        // get graphic
+                        var graphic = this.layers[i].graphics[k];
+                        if (graphic) {
+                            graphic.show();
+                        }
+                    }
+                }
                 // if we have a layer div and its not a graphics layer
-                if (layerNode && !this.layers[i].graphics) {
+                else if (layerNode) {
                     // reset clip to none
                     var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
                     domStyle.set(layerNode, "clip", clipstring);

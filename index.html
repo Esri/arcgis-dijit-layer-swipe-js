@@ -37,7 +37,7 @@
         margin-right: 10px;
         padding: 6px 0;
     }
-    #toggleLayer, #toggleEnabled{
+    #toggleLayer, #toggleEnabled, #toggleEnabled2{
         text-decoration: underline;
         color:#457ee9;
         display: inline-block;
@@ -45,7 +45,7 @@
         cursor: pointer;
         margin-right: 10px;
     }
-    #toggleLayer: hover, #toggleEnabled: hover{
+    #toggleLayer: hover, #toggleEnabled: hover, #toggleEnabled2: hover{
         color:black;
         text-decoration: none;
     }
@@ -79,6 +79,16 @@
 		<div id="LayerSwipe2">
 		</div>
 	</div>
+</div>
+<div id="toggleEnabled2">
+	Toggle Widget Enabled
+</div>
+<ul class="changeTool">
+	<li><input id="vTool2" type="radio" name="type2" value="vertical"/><label for="vTool2">Vertical</label></li>
+	<li><input id="hTool2" type="radio" name="type2" value="horizontal"/><label for="hTool2">Horizontal</label></li>
+	<li><input id="sTool2" type="radio" name="type2" value="scope" checked="checked" /><label for="sTool2">Scope</label></li>
+</ul>
+<div style="clear:both;">
 </div>
 <script src="https://gist.github.com/driskull/5995594.js"></script>
 <h2>All Options</h2>
@@ -196,6 +206,18 @@
                 on(swipeWidget2, 'swipe', function(obj){
                     console.log(obj);
                 });
+                
+                
+                
+    
+                on(dom.byId('toggleEnabled2'), 'click', function(){
+                    swipeWidget2.set("enabled", !swipeWidget2.get("enabled")); 
+                });
+                on(query("input[name=type2]"), 'change', function(evt){
+                    swipeWidget2.set("type", evt.target.value);
+                });
+                
+        
                 
                 
                 
