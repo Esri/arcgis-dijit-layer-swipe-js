@@ -50,32 +50,31 @@ function (
     //      l = m.l;
     //      t = m.t;
     var patchedMover = declare([Mover], {
-        onFirstMove: function(e){
-            var s = this.node.style, l, t, h = this.host;
-            switch(s.position){
-                case "relative":
-                case "absolute":
-                    l = Math.round(parseFloat(s.left)) || 0;
-                    t = Math.round(parseFloat(s.top)) || 0;
-                    break;
-                default:
-                    s.position = "absolute";    // enforcing the absolute mode
-                    var m = domGeom.getMarginBox(this.node);
-                    l = m.l;
-                    t = m.t;
-                    break;
+        onFirstMove: function(e) {
+            var s = this.node.style,
+                l, t, h = this.host;
+            switch (s.position) {
+            case "relative":
+            case "absolute":
+                l = Math.round(parseFloat(s.left)) || 0;
+                t = Math.round(parseFloat(s.top)) || 0;
+                break;
+            default:
+                s.position = "absolute"; // enforcing the absolute mode
+                var m = domGeom.getMarginBox(this.node);
+                l = m.l;
+                t = m.t;
+                break;
             }
             this.marginBox.l = l - this.marginBox.l;
             this.marginBox.t = t - this.marginBox.t;
-            if(h && h.onFirstMove){
+            if (h && h.onFirstMove) {
                 h.onFirstMove(this, e);
             }
-
             // Disconnect touch.move that call this function
             this.events.shift().remove();
         }
     });
-
     var Widget = declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin, Evented], {
         declaredClass: "esri.dijit.LayerSwipe",
         templateString: dijitTemplate,
@@ -129,7 +128,7 @@ function (
                 console.log('LayerSwipe::layer required');
             }
             // wait until all layers are loaded and map is loaded
-            this._allLoaded().then(lang.hitch(this, function(){
+            this._allLoaded().then(lang.hitch(this, function() {
                 this._init();
             }));
         },
@@ -138,9 +137,9 @@ function (
             this._removeEvents();
             this.inherited(arguments);
         },
-        swipe: function(){
+        swipe: function() {
             this._setClipValue();
-            this._swipe();  
+            this._swipe();
         },
         /* ---------------- */
         /* Public Events */
@@ -159,7 +158,7 @@ function (
         /* ---------------- */
         /* Private Functions */
         /* ---------------- */
-        _allLoaded: function(){
+        _allLoaded: function() {
             var loadPromises = [];
             // all layers
             for (var i = 0; i < this.layers.length; i++) {
@@ -171,10 +170,9 @@ function (
                 // layer deferred
                 var def = new Deferred();
                 // if layer isn't loaded
-                if(!this.layers[i].loaded){
+                if (!this.layers[i].loaded) {
                     this._layerLoadedPromise(i, def);
-                }
-                else{
+                } else {
                     def.resolve('layer loaded');
                 }
                 loadPromises.push(def.promise);
@@ -186,15 +184,14 @@ function (
                 on.once(this.map, "load", lang.hitch(this, function() {
                     mapLoadDef.resolve('map loaded');
                 }));
-            }
-            else{
+            } else {
                 mapLoadDef.resolve('map loaded');
             }
             loadPromises.push(mapLoadDef.promise);
             return all(loadPromises);
         },
-        _layerLoadedPromise: function(i, def){
-            on.once(this.layers[i], 'load', function(){
+        _layerLoadedPromise: function(i, def) {
+            on.once(this.layers[i], 'load', function() {
                 def.resolve('layer loaded');
             });
         },
@@ -212,12 +209,17 @@ function (
             // set the type
             var moveBox, left, top;
             if (this.get("type")) {
+                // destroy existing swipe mover
                 if (this._swipeslider) {
                     this._swipeslider.destroy();
                 }
+                // add type class to movable node
                 domClass.add(this._moveableNode, this.get("type"));
+                // get position of movable node
                 moveBox = domGeom.getMarginBox(this._moveableNode);
+                // scope type
                 if (this.get("type") === "scope") {
+                    // create movable
                     this._swipeslider = new move.constrainedMoveable(this._moveableNode, {
                         handle: this._moveableNode.id,
                         constraints: lang.hitch(this, this._mb),
@@ -227,12 +229,14 @@ function (
                     // set initial position
                     left = (this.map.width / 2) - (moveBox.w / 2);
                     top = (this.map.height / 2) - (moveBox.h / 2);
+                    // use positions if set on widget
                     if (typeof this.get("top") !== 'undefined') {
                         top = this.get("top");
                     }
                     if (typeof this.get("left") !== 'undefined') {
                         left = this.get("left");
                     }
+                    // horizontal type
                 } else if (this.get("type") === "horizontal") {
                     // create movable
                     this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
@@ -243,11 +247,13 @@ function (
                     // set initial position
                     left = 0;
                     top = (this.map.height / 4) - (moveBox.h / 2);
+                    // use positions if set on widget
                     if (typeof this.get("top") !== 'undefined') {
                         top = this.get("top");
                     }
                     // set clip var
                     this._clipval = top;
+                    // vertical type
                 } else {
                     // create movable
                     this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
@@ -258,12 +264,14 @@ function (
                     // set initial position
                     left = (this.map.width / 4) - (moveBox.w / 2);
                     top = 0;
+                    // use positions if set on widget
                     if (typeof this.get("left") !== 'undefined') {
                         left = this.get("left");
                     }
                     // set clip var
                     this._clipval = left;
                 }
+                // set position
                 domStyle.set(this._moveableNode, {
                     top: top + "px",
                     left: left + "px"
@@ -286,7 +294,7 @@ function (
         _removeEvents: function() {
             if (this._listeners && this._listeners.length) {
                 for (var i = 0; i < this._listeners.length; i++) {
-                    if(this._listeners[i]){
+                    if (this._listeners[i]) {
                         this._listeners[i].remove();
                     }
                 }
@@ -299,24 +307,19 @@ function (
                 var leftInt = moveBox.l;
                 if (leftInt <= 0) {
                     this._clipval = 0;
-                }
-                else if(leftInt >= this.map.width){
+                } else if (leftInt >= this.map.width) {
                     this._clipval = this.map.width;
-                }
-                else{
+                } else {
                     this._clipval = leftInt;
                 }
-            }
-            else if (this.get("type") === "horizontal") {
+            } else if (this.get("type") === "horizontal") {
                 var topInt = moveBox.t;
                 if (topInt <= 0) {
-                    this._clipval = 0; 
-                }
-                else if(topInt >= this.map.height){
-                    this._clipval = this.map.height; 
-                }
-                else{
-                    this._clipval = topInt;   
+                    this._clipval = 0;
+                } else if (topInt >= this.map.height) {
+                    this._clipval = this.map.height;
+                } else {
+                    this._clipval = topInt;
                 }
             }
         },
@@ -347,7 +350,7 @@ function (
             }
             // scope has been clicked
             this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function(evt) {
-                if(this.get("type") === "scope"){
+                if (this.get("type") === "scope") {
                     if (this.map.hasOwnProperty('onClick') && typeof this.map.onClick === 'function' && this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
                         var position = domGeom.position(this.map.root, true);
                         var x = evt.pageX - position.x;
@@ -368,7 +371,7 @@ function (
             this._listeners.push(this._toolClick);
             // scope mouse down click
             this._evtCoords = on.pausable(this._swipeslider, "MouseDown", lang.hitch(this, function(evt) {
-                if(this.get("type") === "scope"){
+                if (this.get("type") === "scope") {
                     this._clickCoords = {
                         x: evt.x,
                         y: evt.y
@@ -381,7 +384,7 @@ function (
             var emitObj = {
                 layers: []
             };
-            if(this.layers && this.layers.length){
+            if (this.layers && this.layers.length) {
                 // each layer
                 for (var i = 0; i < this.layers.length; i++) {
                     // layer node div
@@ -391,9 +394,9 @@ function (
                     // movable node position
                     moveBox = domGeom.getMarginBox(this._moveableNode);
                     // vertical and horizontal nodes
-                    if(this.get("type") === "vertical" || this.get("type") === "horizontal"){
+                    if (this.get("type") === "vertical" || this.get("type") === "horizontal") {
                         // if layer has a div
-                        if(layerNode){
+                        if (layerNode) {
                             // get layer node position
                             layerBox = domGeom.getMarginBox(layerNode);
                         }
@@ -456,7 +459,7 @@ function (
                     }
                     // graphics layer
                     if (this.layers[i].graphics) {
-                        if(this.layers[i].graphics.length){
+                        if (this.layers[i].graphics.length) {
                             var ll, ur;
                             if (this.get("type") === "vertical") {
                                 ll = this.map.toMap(new Point(0, this.map.height, this.map.spatialReference));
@@ -481,7 +484,7 @@ function (
                                 }
                             }
                         }
-                    // Non graphics layer
+                        // Non graphics layer
                     } else if (layerNode) {
                         // clip div
                         if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
@@ -505,7 +508,7 @@ function (
                                     prefix = "-o-";
                                 }
                                 var divStyle = layerNode.style;
-                                if(divStyle){
+                                if (divStyle) {
                                     var transformValue = divStyle.getPropertyValue(prefix + "transform");
                                     if (transformValue) {
                                         if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
@@ -528,9 +531,11 @@ function (
                                 //Syntax for clip "rect(top,right,bottom,left)"
                                 //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
                                 var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
-                                domStyle.set(layerNode, "clip", clipstring);   
+                                domStyle.set(layerNode, "clip", clipstring);
                             }
                         }
+                    } else {
+                        console.log('LayerSwipe::Invalid layer type');
                     }
                     var layerEmit = {
                         layer: this.layers[i],
@@ -556,42 +561,53 @@ function (
             }
             // set type of swipe type
             this._setSwipeType();
-            // swipe it
-            this._enabled();
+            // remove and reset events
+            this._setupEvents();
+            // swipe new position
+            this.swipe();
+        },
+        _pauseEvents: function() {
+            if (this._listeners) {
+                for (var i = 0; i < this._listeners.length; i++) {
+                    this._listeners[i].pause();
+                }
+            }
+        },
+        _resumeEvents: function() {
+            if (this._listeners) {
+                for (var i = 0; i < this._listeners.length; i++) {
+                    this._listeners[i].resume();
+                }
+            }
+        },
+        _unclipLayers: function() {
+            for (var i = 0; i < this.layers.length; i++) {
+                var layerNode = this.layers[i]._div;
+                // if we have a layer div and its not a graphics layer
+                if (layerNode && !this.layers[i].graphics) {
+                    // reset clip to none
+                    var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
+                    domStyle.set(layerNode, "clip", clipstring);
+                }
+            }
         },
         _enabled: function() {
             if (this.get("enabled")) {
                 // widget enabled
                 domStyle.set(this.domNode, 'display', 'block');
-                this._swipeMove.resume();
-                this._swipePanEnd.resume();
-                this._evtCoords.resume();
-                this._toolClick.resume();
-                this._mapUpdateEnd.resume();
-                if (this._swipePan) {
-                    this._swipePan.resume();
-                }
+                // restart events
+                this._resumeEvents();
+                // reset clip value
                 this._setClipValue();
+                // swipe map
                 this._swipe();
             } else {
-                // widget disabled
-                this._swipeMove.pause();
-                this._swipePanEnd.pause();
-                this._evtCoords.pause();
-                this._toolClick.pause();
-                this._mapUpdateEnd.pause();
-                if (this._swipePan) {
-                    this._swipePan.pause();
-                }
+                // pause all events
+                this._pauseEvents();
+                // hide widget div
                 domStyle.set(this.domNode, 'display', 'none');
                 // unclip layers
-                for (var i = 0; i < this.layers.length; i++) {
-                    var layerNode = this.layers[i]._div;
-                    if (layerNode && !this.layers[i].graphics) {
-                        var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
-                        domStyle.set(layerNode, "clip", clipstring);
-                    }
-                }
+                this._unclipLayers();
             }
         }
     });
