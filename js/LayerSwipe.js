@@ -570,39 +570,41 @@ function (
             this.swipe();
         },
         _pauseEvents: function() {
-            if (this._listeners) {
+            if (this._listeners && this._listeners.length) {
                 for (var i = 0; i < this._listeners.length; i++) {
                     this._listeners[i].pause();
                 }
             }
         },
         _resumeEvents: function() {
-            if (this._listeners) {
+            if (this._listeners && this._listeners.length) {
                 for (var i = 0; i < this._listeners.length; i++) {
                     this._listeners[i].resume();
                 }
             }
         },
         _unclipLayers: function() {
-            for (var i = 0; i < this.layers.length; i++) {
-                // layer div
-                var layerNode = this.layers[i]._div;
-                // graphics layer 
-                if (this.layers[i].graphics) {
-                    // all graphics
-                    for (var k = 0; k < this.layers[i].graphics.length; k++) {
-                        // get graphic
-                        var graphic = this.layers[i].graphics[k];
-                        if (graphic) {
-                            graphic.show();
+            if(this.layers && this.layers.length){
+                for (var i = 0; i < this.layers.length; i++) {
+                    // layer div
+                    var layerNode = this.layers[i]._div;
+                    // graphics layer 
+                    if (this.layers[i].graphics) {
+                        // all graphics
+                        for (var k = 0; k < this.layers[i].graphics.length; k++) {
+                            // get graphic
+                            var graphic = this.layers[i].graphics[k];
+                            if (graphic) {
+                                graphic.show();
+                            }
                         }
                     }
-                }
-                // if we have a layer div and its not a graphics layer
-                else if (layerNode) {
-                    // reset clip to none
-                    var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
-                    domStyle.set(layerNode, "clip", clipstring);
+                    // if we have a layer div and its not a graphics layer
+                    else if (layerNode) {
+                        // reset clip to none
+                        var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
+                        domStyle.set(layerNode, "clip", clipstring);
+                    }
                 }
             }
         },
