@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <title>Layer Swipe</title>
+  <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.7/js/esri/css/esri.css">
+  <style>
+    html, body, #map {
+      padding:0;
+      margin:0;
+      height:100%;
+    }
+  </style>
+  <script type="text/javascript">
+    var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+    var dojoConfig = {
+        // The locationPath logic below may look confusing but all its doing is 
+        // enabling us to load the api from a CDN and load local modules from the correct location.
+        packages: [{
+            name: "modules",
+            location: package_path + '/js'
+        }, {
+            name: "zesri",
+            location: package_path + '/js'
+        }]
+    };
+</script>
+  <script src="//js.arcgis.com/3.7/"></script>
+  <script>
+   var map;
+   var swipeWidget;
+
+    require([
+      "esri/map", 
+      "esri/geometry/Extent",
+      "modules/LayerSwipe",
+      "esri/layers/FeatureLayer",
+      "esri/arcgis/utils",
+      "dojo/_base/array",
+      "dojo/domReady!"
+    ], function(
+      Map, Extent, LayerSwipe, FeatureLayer, arcgisUtils, array 
+    )  {
+
+      map = new Map("map", {
+        basemap:"gray",
+        extent: new Extent({
+              xmin: 3294741.667203368,
+              ymin: -1994700.690129431,
+              xmax: 4445577.5650646705,
+              ymax: -952711.1205461896,
+              spatialReference: {wkid: 102100}
+        })
+      });
+      
+     var swipeLayer = new FeatureLayer("http://wbmalawi.esri.com/arcgis/rest/services/Malawi/Land_Use_10/MapServer/1",{
+      mode: FeatureLayer.SNAPSHOT,
+      visible:true
+
+     });
+
+     map.addLayer(swipeLayer);
+
+    swipeWidget = new LayerSwipe({
+      type: "vertical",  //Try switching to "scope" or "horizontal"
+      map: map,
+      layers: [swipeLayer]
+    }, "swipeDiv");
+
+    swipeWidget.startup();  
+
+    });
+  </script>
+
+</head>
+<body>
+  <div id="map" class="map">
+    <div id="swipeDiv"></div>
+  </div>
+</body>
+</html>
