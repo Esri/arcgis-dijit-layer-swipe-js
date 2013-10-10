@@ -166,6 +166,10 @@ function (
                 if (typeof this.layers[i] === 'string') {
                     // get layer
                     this.layers[i] = this.map.getLayer(this.layers[i]);
+                    // if we dont have a layer
+                    if(!this.layers[i]){
+                        console.log('LayerSwipe::Could not get layer by ID');
+                    }
                 }
                 // layer deferred
                 var def = new Deferred();
@@ -327,8 +331,7 @@ function (
             this._removeEvents();
             // swipe move
             this._swipeMove = on.pausable(this._swipeslider, 'Move', lang.hitch(this, function() {
-                this._setClipValue();
-                this._swipe();
+                this.swipe();
             }));
             this._listeners.push(this._swipeMove);
             // done panning
@@ -609,10 +612,8 @@ function (
                 domStyle.set(this.domNode, 'display', 'block');
                 // restart events
                 this._resumeEvents();
-                // reset clip value
-                this._setClipValue();
                 // swipe map
-                this._swipe();
+                this.swipe();
             } else {
                 // pause all events
                 this._pauseEvents();
