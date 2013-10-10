@@ -562,6 +562,7 @@ function (
         _enabled: function() {
             if (this.get("enabled")) {
                 // widget enabled
+                domStyle.set(this.domNode, 'display', 'block');
                 this._swipeMove.resume();
                 this._swipePanEnd.resume();
                 this._evtCoords.resume();
@@ -570,7 +571,6 @@ function (
                 if (this._swipePan) {
                     this._swipePan.resume();
                 }
-                domStyle.set(this.domNode, 'display', 'block');
                 this._setClipValue();
                 this._swipe();
             } else {
