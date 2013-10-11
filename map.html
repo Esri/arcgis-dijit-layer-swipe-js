@@ -19,11 +19,25 @@
         font-family: "Trebuchet MS";
       }
     </style>
+      <script type="text/javascript">
+    var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+    var dojoConfig = {
+        // The locationPath logic below may look confusing but all its doing is 
+        // enabling us to load the api from a CDN and load local modules from the correct location.
+        packages: [{
+            name: "modules",
+            location: package_path + '/js'
+        }, {
+            name: "zesri",
+            location: package_path + '/js'
+        }]
+    };
+</script>
     <script src="http://js.arcgis.com/3.7/"></script>
     <script>
       var map;
 
-      require(["esri/map", "esri/layers/FeatureLayer", "esri/dijit/LayerSwipe", "dojo/domReady!"], function(Map, FeatureLayer, LayerSwipe) {
+      require(["esri/map", "esri/layers/FeatureLayer", "modules/LayerSwipe", "dojo/on", "dojo/domReady!"], function(Map, FeatureLayer, LayerSwipe, on) {
         map = new Map("map", {
           basemap: "topo",
           center: [-117.1825,34.0547], // long, lat
@@ -31,8 +45,10 @@
           sliderStyle: "small"
         });
         
-        var layer = new FeatureLayer('http://sampleserver6.arcgisonline.com/arcgis/rest/services/RedlandsEmergencyVehicles/MapServer/1'); 
-        layer._div = map.root;
+        var layer = new FeatureLayer('http://sampleserver6.arcgisonline.com/arcgis/rest/services/RedlandsEmergencyVehicles/MapServer/1', {
+
+        }); 
+        
         map.addLayer(layer);
         
         console.log(map);
@@ -42,6 +58,12 @@
             layers: [layer]
         }, "LayerSwipe");
         
+        /*
+        on.once(widget, 'swipe', function(){
+            layer.show(); 
+        });
+        
+        */
         widget.startup();
         
         
