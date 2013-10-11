@@ -37,7 +37,7 @@
         margin-right: 10px;
         padding: 6px 0;
     }
-    #toggleLayer, #toggleEnabled, #toggleEnabled2{
+    #toggleLayer, #toggleLayer2, #toggleEnabled, #toggleEnabled2{
         text-decoration: underline;
         color:#457ee9;
         display: inline-block;
@@ -45,7 +45,7 @@
         cursor: pointer;
         margin-right: 10px;
     }
-    #toggleLayer: hover, #toggleEnabled: hover, #toggleEnabled2: hover{
+    #toggleLayer: hover, #toggleLayer2: hover, #toggleEnabled: hover, #toggleEnabled2: hover{
         color:black;
         text-decoration: none;
     }
@@ -79,6 +79,9 @@
 		<div id="LayerSwipe2">
 		</div>
 	</div>
+</div>
+<div id="toggleLayer2">
+	Toggle Layer Visibility
 </div>
 <div id="toggleEnabled2">
 	Toggle Widget Enabled
@@ -207,7 +210,9 @@
                     console.log(obj);
                 });
                 
-                
+                on(dom.byId('toggleLayer2'), 'click', function(){
+                    layer.setVisibility(!layer.visible);
+                });
                 
     
                 on(dom.byId('toggleEnabled2'), 'click', function(){
