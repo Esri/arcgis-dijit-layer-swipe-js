@@ -386,190 +386,192 @@ function (
             this._listeners.push(this._evtCoords);
         },
         _swipe: function() {
-            var emitObj = {
-                layers: []
-            };
-            if (this.get("loaded") && this.layers && this.layers.length) {
-                // each layer
-                for (var i = 0; i < this.layers.length; i++) {
-                    // layer node div
-                    var layerNode = this.layers[i]._div;
-                    // layer graphics
-                    var layerGraphics = this.layers[i].graphics;
-                    // position and extent variables
-                    var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
-                    // movable node position
-                    moveBox = domGeom.getMarginBox(this._moveableNode);
-                    // vertical and horizontal nodes
-                    if (this.get("type") === "vertical" || this.get("type") === "horizontal") {
-                        // if layer has a div
+            if (this.get("loaded") && this.get("enabled")) {
+                var emitObj = {
+                    layers: []
+                };
+                if (this.layers && this.layers.length) {
+                    // each layer
+                    for (var i = 0; i < this.layers.length; i++) {
+                        // layer node div
+                        var layerNode = this.layers[i]._div;
+                        // layer graphics
+                        var layerGraphics = this.layers[i].graphics;
+                        // position and extent variables
+                        var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
+                        // movable node position
+                        moveBox = domGeom.getMarginBox(this._moveableNode);
+                        // vertical and horizontal nodes
+                        if (this.get("type") === "vertical" || this.get("type") === "horizontal") {
+                            // if layer has a div
+                            if (layerNode) {
+                                // get layer node position
+                                layerBox = domGeom.getMarginBox(layerNode);
+                            }
+                            // map node position
+                            mapBox = domGeom.getMarginBox(this.map.root);
+                        }
+                        if (this.get("type") === "vertical") {
+                            if (layerBox && layerBox.l > 0) {
+                                rightval = this._clipval - Math.abs(layerBox.l);
+                                leftval = -(layerBox.l);
+                            } else if (layerBox && layerBox.l < 0) {
+                                leftval = 0;
+                                rightval = this._clipval + Math.abs(layerBox.l);
+                            } else {
+                                leftval = 0;
+                                rightval = this._clipval;
+                            }
+                            if (layerBox && layerBox.t > 0) {
+                                topval = -(layerBox.t);
+                                bottomval = mapBox.h - layerBox.t;
+                            } else if (layerBox && layerBox.t < 0) {
+                                topval = 0;
+                                bottomval = mapBox.h + Math.abs(layerBox.t);
+                            } else {
+                                topval = 0;
+                                bottomval = mapBox.h;
+                            }
+                        } else if (this.get("type") === "horizontal") {
+                            if (layerBox && layerBox.t > 0) {
+                                bottomval = this._clipval - Math.abs(layerBox.t);
+                                topval = -(layerBox.t);
+                            } else if (layerBox && layerBox.t < 0) {
+                                topval = 0;
+                                bottomval = this._clipval + Math.abs(layerBox.t);
+                            } else {
+                                topval = 0;
+                                bottomval = this._clipval;
+                            }
+                            if (layerBox && layerBox.l > 0) {
+                                leftval = -(layerBox.l);
+                                rightval = mapBox.w - layerBox.l;
+                            } else if (layerBox && layerBox.l < 0) {
+                                leftval = 0;
+                                rightval = mapBox.w + Math.abs(layerBox.l);
+                            } else {
+                                leftval = 0;
+                                rightval = mapBox.w;
+                            }
+                        } else if (this.get("type") === "scope") {
+                            // graphics layer svg
+                            if (layerGraphics) {
+                                leftval = moveBox.l;
+                                rightval = moveBox.w;
+                                topval = moveBox.t;
+                                bottomval = moveBox.h;
+                                if (typeof this.get("clip") !== 'undefined') {
+                                    leftval += this.get("clip");
+                                    rightval += -(this.get("clip") * 2);
+                                    topval += this.get("clip");
+                                    bottomval += -(this.get("clip") * 2);
+                                }
+                            }
+                            // div layer
+                            else {
+                                leftval = moveBox.l;
+                                rightval = leftval + moveBox.w;
+                                topval = moveBox.t;
+                                bottomval = topval + moveBox.h;
+                                if (typeof this.get("clip") !== 'undefined') {
+                                    leftval += this.get("clip");
+                                    rightval += -this.get("clip");
+                                    topval += this.get("clip");
+                                    bottomval += -this.get("clip");
+                                }
+                            }
+                        }
+                        // if layer has (_div)
                         if (layerNode) {
-                            // get layer node position
-                            layerBox = domGeom.getMarginBox(layerNode);
-                        }
-                        // map node position
-                        mapBox = domGeom.getMarginBox(this.map.root);
-                    }
-                    if (this.get("type") === "vertical") {
-                        if (layerBox && layerBox.l > 0) {
-                            rightval = this._clipval - Math.abs(layerBox.l);
-                            leftval = -(layerBox.l);
-                        } else if (layerBox && layerBox.l < 0) {
-                            leftval = 0;
-                            rightval = this._clipval + Math.abs(layerBox.l);
-                        } else {
-                            leftval = 0;
-                            rightval = this._clipval;
-                        }
-                        if (layerBox && layerBox.t > 0) {
-                            topval = -(layerBox.t);
-                            bottomval = mapBox.h - layerBox.t;
-                        } else if (layerBox && layerBox.t < 0) {
-                            topval = 0;
-                            bottomval = mapBox.h + Math.abs(layerBox.t);
-                        } else {
-                            topval = 0;
-                            bottomval = mapBox.h;
-                        }
-                    } else if (this.get("type") === "horizontal") {
-                        if (layerBox && layerBox.t > 0) {
-                            bottomval = this._clipval - Math.abs(layerBox.t);
-                            topval = -(layerBox.t);
-                        } else if (layerBox && layerBox.t < 0) {
-                            topval = 0;
-                            bottomval = this._clipval + Math.abs(layerBox.t);
-                        } else {
-                            topval = 0;
-                            bottomval = this._clipval;
-                        }
-                        if (layerBox && layerBox.l > 0) {
-                            leftval = -(layerBox.l);
-                            rightval = mapBox.w - layerBox.l;
-                        } else if (layerBox && layerBox.l < 0) {
-                            leftval = 0;
-                            rightval = mapBox.w + Math.abs(layerBox.l);
-                        } else {
-                            leftval = 0;
-                            rightval = mapBox.w;
-                        }
-                    } else if (this.get("type") === "scope") {
-                        // graphics layer svg
-                        if (layerGraphics) {
-                            leftval = moveBox.l;
-                            rightval = moveBox.w;
-                            topval = moveBox.t;
-                            bottomval = moveBox.h;
-                            if (typeof this.get("clip") !== 'undefined') {
-                                leftval += this.get("clip");
-                                rightval += -(this.get("clip") * 2);
-                                topval += this.get("clip");
-                                bottomval += -(this.get("clip") * 2);
-                            }
-                        }
-                        // div layer
-                        else {
-                            leftval = moveBox.l;
-                            rightval = leftval + moveBox.w;
-                            topval = moveBox.t;
-                            bottomval = topval + moveBox.h;
-                            if (typeof this.get("clip") !== 'undefined') {
-                                leftval += this.get("clip");
-                                rightval += -this.get("clip");
-                                topval += this.get("clip");
-                                bottomval += -this.get("clip");
-                            }
-                        }
-                    }
-                    // if layer has (_div)
-                    if (layerNode) {
-                        // graphics layer
-                        if (layerGraphics) {
-                            // get layer transform
-                            var tr = layerNode.getTransform();
-                            // if we got the transform object
-                            if (tr) {
-                                // if layer is offset x
-                                if (tr.hasOwnProperty('dx')) {
-                                    leftval += -(tr.dx);
+                            // graphics layer
+                            if (layerGraphics) {
+                                // get layer transform
+                                var tr = layerNode.getTransform();
+                                // if we got the transform object
+                                if (tr) {
+                                    // if layer is offset x
+                                    if (tr.hasOwnProperty('dx')) {
+                                        leftval += -(tr.dx);
+                                    }
+                                    // if layer is offset y
+                                    if (tr.hasOwnProperty('dy')) {
+                                        topval += -(tr.dy);
+                                    }
                                 }
-                                // if layer is offset y
-                                if (tr.hasOwnProperty('dy')) {
-                                    topval += -(tr.dy);
-                                }
-                            }
-                            // set clip on graphics layer
-                            layerNode.setClip({
-                                x: leftval,
-                                y: topval,
-                                width: rightval,
-                                height: bottomval
-                            });
-                            // Non graphics layer
-                        } else {
-                            // clip div
-                            if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
-                                // If CSS Transformation is applied to the layer (i.e. swipediv),
-                                // record the amount of translation and adjust clip rect
-                                // accordingly
-                                var tx = 0,
-                                    ty = 0;
-                                if (this.map.navigationMode === "css-transforms") {
-                                    var prefix = "";
-                                    if (sniff("webkit")) {
-                                        prefix = "-webkit-";
-                                    }
-                                    if (sniff("ff")) {
-                                        prefix = "-moz-";
-                                    }
-                                    if (sniff("ie")) {
-                                        prefix = "-ms-";
-                                    }
-                                    if (sniff("opera")) {
-                                        prefix = "-o-";
-                                    }
-                                    var divStyle = layerNode.style;
-                                    if (divStyle) {
-                                        var transformValue = divStyle.getPropertyValue(prefix + "transform");
-                                        if (transformValue) {
-                                            if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
-                                                transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
-                                            } else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
-                                                transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+                                // set clip on graphics layer
+                                layerNode.setClip({
+                                    x: leftval,
+                                    y: topval,
+                                    width: rightval,
+                                    height: bottomval
+                                });
+                                // Non graphics layer
+                            } else {
+                                // clip div
+                                if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
+                                    // If CSS Transformation is applied to the layer (i.e. swipediv),
+                                    // record the amount of translation and adjust clip rect
+                                    // accordingly
+                                    var tx = 0,
+                                        ty = 0;
+                                    if (this.map.navigationMode === "css-transforms") {
+                                        var prefix = "";
+                                        if (sniff("webkit")) {
+                                            prefix = "-webkit-";
+                                        }
+                                        if (sniff("ff")) {
+                                            prefix = "-moz-";
+                                        }
+                                        if (sniff("ie")) {
+                                            prefix = "-ms-";
+                                        }
+                                        if (sniff("opera")) {
+                                            prefix = "-o-";
+                                        }
+                                        var divStyle = layerNode.style;
+                                        if (divStyle) {
+                                            var transformValue = divStyle.getPropertyValue(prefix + "transform");
+                                            if (transformValue) {
+                                                if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
+                                                    transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+                                                } else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
+                                                    transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+                                                }
+                                                try {
+                                                    tx = parseFloat(transformValue[0]);
+                                                    ty = parseFloat(transformValue[1]);
+                                                } catch (e) {
+                                                    console.error(e);
+                                                }
+                                                leftval -= tx;
+                                                rightval -= tx;
+                                                topval -= ty;
+                                                bottomval -= ty;
                                             }
-                                            try {
-                                                tx = parseFloat(transformValue[0]);
-                                                ty = parseFloat(transformValue[1]);
-                                            } catch (e) {
-                                                console.error(e);
-                                            }
-                                            leftval -= tx;
-                                            rightval -= tx;
-                                            topval -= ty;
-                                            bottomval -= ty;
                                         }
                                     }
+                                    //Syntax for clip "rect(top,right,bottom,left)"
+                                    //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
+                                    var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
+                                    domStyle.set(layerNode, "clip", clipstring);
                                 }
-                                //Syntax for clip "rect(top,right,bottom,left)"
-                                //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
-                                var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
-                                domStyle.set(layerNode, "clip", clipstring);
                             }
+                        } else {
+                            // no layerNode
+                            console.log('LayerSwipe::Invalid layer type');
                         }
-                    } else {
-                        // no layerNode
-                        console.log('LayerSwipe::Invalid layer type');
+                        var layerEmit = {
+                            layer: this.layers[i],
+                            left: leftval,
+                            right: rightval,
+                            top: topval,
+                            bottom: bottomval
+                        };
+                        emitObj.layers.push(layerEmit);
                     }
-                    var layerEmit = {
-                        layer: this.layers[i],
-                        left: leftval,
-                        right: rightval,
-                        top: topval,
-                        bottom: bottomval
-                    };
-                    emitObj.layers.push(layerEmit);
                 }
+                this.emit("swipe", emitObj);
             }
-            this.emit("swipe", emitObj);
         },
         _updateThemeWatch: function(attr, oldVal, newVal) {
             domClass.remove(this.domNode, oldVal);

@@ -45,10 +45,8 @@
           sliderStyle: "small"
         });
         
-        var layer = new FeatureLayer('http://sampleserver6.arcgisonline.com/arcgis/rest/services/RedlandsEmergencyVehicles/MapServer/1', {
+        var layer = new FeatureLayer('http://sampleserver6.arcgisonline.com/arcgis/rest/services/RedlandsEmergencyVehicles/MapServer/1'); 
 
-        }); 
-        
         map.addLayer(layer);
         
         console.log(map);
@@ -58,12 +56,6 @@
             layers: [layer]
         }, "LayerSwipe");
         
-        /*
-        on.once(widget, 'swipe', function(){
-            layer.show(); 
-        });
-        
-        */
         widget.startup();
         
         
