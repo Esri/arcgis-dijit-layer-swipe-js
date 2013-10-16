@@ -133,9 +133,8 @@ function (
         },
         // connections/subscriptions will be cleaned up during the destroy() lifecycle phase
         destroy: function() {
-            // unclip layers
-            this._unclipLayers();
             this._removeEvents();
+            this._unclipLayers();
             this.inherited(arguments);
         },
         swipe: function() {
