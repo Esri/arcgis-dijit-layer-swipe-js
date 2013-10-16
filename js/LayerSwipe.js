@@ -551,9 +551,18 @@ function (
                                             }
                                         }
                                     }
-                                    //Syntax for clip "rect(top,right,bottom,left)"
-                                    //var clipstring = "rect(0px " + val + "px " + map.height + "px " + " 0px)";
-                                    var clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
+                                    // browser is IE
+                                    var IE = sniff('ie');
+                                    // CSS Clip rectangle
+                                    var clipstring;
+                                    // if IE and less than ie8
+                                    if (IE && IE < 8) {
+                                        //Syntax for clip "rect(top right bottom left)"
+                                        clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
+                                    } else {
+                                        //Syntax for clip "rect(top, right, bottom, left)"
+                                        clipstring = "rect(" + topval + "px, " + rightval + "px, " + bottomval + "px, " + leftval + "px)";
+                                    }
                                     domStyle.set(layerNode, "clip", clipstring);
                                 }
                             }
@@ -619,8 +628,15 @@ function (
                         }
                         // if we have a layer div and its not a graphics layer
                         else {
-                            // reset css clip to none
-                            var clipstring = sniff('ie') ? "rect(auto auto auto auto)" : "";
+                            var clipstring;
+                            // test for IE
+                            var IE = sniff('ie');
+                            // if IE and less than ie8
+                            if (IE && IE < 8) {
+                                clipstring = "rect(auto auto auto auto)";
+                            } else {
+                                clipstring = "auto";
+                            }
                             domStyle.set(layerNode, "clip", clipstring);
                         }
                     }
