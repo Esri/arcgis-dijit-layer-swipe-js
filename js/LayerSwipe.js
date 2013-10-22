@@ -5,7 +5,6 @@ define([
     "dojo/has",
     "esri/kernel",
     "dijit/_WidgetBase",
-    "dijit/_OnDijitClickMixin",
     "dijit/_TemplatedMixin",
     "dojo/on",
     // load template
@@ -27,7 +26,7 @@ function (
     declare,
     lang,
     has, esriNS,
-    _WidgetBase, _OnDijitClickMixin, _TemplatedMixin,
+    _WidgetBase, _TemplatedMixin,
     on,
     dijitTemplate, i18n,
     domClass, domStyle,
@@ -74,7 +73,7 @@ function (
             this.events.shift().remove();
         }
     });
-    var Widget = declare([_WidgetBase, _OnDijitClickMixin, _TemplatedMixin, Evented], {
+    var Widget = declare([_WidgetBase, _TemplatedMixin, Evented], {
         declaredClass: "esri.dijit.LayerSwipe",
         templateString: dijitTemplate,
         options: {
