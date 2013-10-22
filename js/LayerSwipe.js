@@ -87,19 +87,19 @@ function (
         // lifecycle: 1
         constructor: function(options, srcRefNode) {
             // mix in settings and defaults
-            declare.safeMixin(this.options, options);
+            var defaults = lang.mixin({}, this.options, options);
             // widget node
             this.domNode = srcRefNode;
             this._i18n = i18n;
             // properties
-            this.set("map", this.options.map);
-            this.set("layers", this.options.layers);
-            this.set("top", this.options.top);
-            this.set("left", this.options.left);
-            this.set("theme", this.options.theme);
-            this.set("enabled", this.options.enabled);
-            this.set("type", this.options.type);
-            this.set("clip", this.options.clip);
+            this.set("map", defaults.map);
+            this.set("layers", defaults.layers);
+            this.set("top", defaults.top);
+            this.set("left", defaults.left);
+            this.set("theme", defaults.theme);
+            this.set("enabled", defaults.enabled);
+            this.set("type", defaults.type);
+            this.set("clip", defaults.clip);
             // listeners
             this.watch("theme", this._updateThemeWatch);
             this.watch("enabled", this._enabled);
