@@ -289,6 +289,8 @@ function (
             domConstruct.place(this.domNode, this.map._layersDiv, 'last');
             // events
             this._setupEvents();
+            // check if not enabled
+            this._enabled();
             // we're ready
             this.set("loaded", true);
             this.emit("load", {});
