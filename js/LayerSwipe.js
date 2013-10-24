@@ -290,11 +290,11 @@ function (
             this._setupEvents();
             // check if not enabled
             this._enabled();
-            // giddyup
-            this.swipe();
             // we're ready
             this.set("loaded", true);
             this.emit("load", {});
+            // giddyup
+            this.swipe();
         },
         _removeEvents: function() {
             if (this._listeners && this._listeners.length) {
