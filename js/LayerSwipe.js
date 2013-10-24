@@ -290,6 +290,8 @@ function (
             this._setupEvents();
             // check if not enabled
             this._enabled();
+            // giddyup
+            this.swipe();
             // we're ready
             this.set("loaded", true);
             this.emit("load", {});

@@ -37,7 +37,7 @@
         margin-right: 10px;
         padding: 6px 0;
     }
-    #toggleLayer, #toggleLayer2, #toggleEnabled, #toggleEnabled2{
+    .buttonItem{
         text-decoration: underline;
         color:#457ee9;
         display: inline-block;
@@ -45,7 +45,7 @@
         cursor: pointer;
         margin-right: 10px;
     }
-    #toggleLayer: hover, #toggleLayer2: hover, #toggleEnabled: hover, #toggleEnabled2: hover{
+    .buttonItem:hover{
         color:black;
         text-decoration: none;
     }
@@ -59,11 +59,17 @@
 		</div>
 	</div>
 </div>
-<div id="toggleLayer">
+<div class="buttonItem" id="toggleLayer">
 	Toggle Layer Visibility
 </div>
-<div id="toggleEnabled">
+<div class="buttonItem" id="toggleEnabled">
 	Toggle Widget Enabled
+</div>
+<div class="buttonItem" id="startup">
+	startup
+</div>
+<div class="buttonItem" id="destroy">
+	destroy
 </div>
 <ul class="changeTool">
 	<li><input id="vTool" type="radio" name="type" value="vertical" checked="checked"/><label for="vTool">Vertical</label></li>
@@ -80,10 +86,10 @@
 		</div>
 	</div>
 </div>
-<div id="toggleLayer2">
+<div class="buttonItem" id="toggleLayer2">
 	Toggle Layer Visibility
 </div>
-<div id="toggleEnabled2">
+<div class="buttonItem" id="toggleEnabled2">
 	Toggle Widget Enabled
 </div>
 <ul class="changeTool">
@@ -150,6 +156,22 @@
                 on(dom.byId('toggleEnabled'), 'click', function(){
                     swipeWidget.set("enabled", !swipeWidget.get("enabled")); 
                 });
+                
+                
+                on(dom.byId('startup'), 'click', function(){
+                    swipeWidget = new LayerSwipe({
+                        type: "vertical",
+                        map: map,
+                        layers: [layer]
+                    }, "LayerSwipe");
+                    swipeWidget.startup(); 
+                });
+                
+                on(dom.byId('destroy'), 'click', function(){
+                    swipeWidget.destroy(); 
+                });
+                
+                
                 on(query("input[name=type]"), 'change', function(evt){
                     swipeWidget.set("type", evt.target.value);
                 });
