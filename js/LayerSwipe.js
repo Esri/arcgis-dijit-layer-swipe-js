@@ -351,12 +351,10 @@ function (
             }));
             this._listeners.push(this._mapUpdateEnd);
             // css panning
-            if (this.map.navigationMode === "css-transforms") {
-                this._swipePan = on.pausable(this.map, 'pan', lang.hitch(this, function() {
-                    this._swipe();
-                }));
-                this._listeners.push(this._swipePan);
-            }
+            this._swipePan = on.pausable(this.map, 'pan', lang.hitch(this, function() {
+                this._swipe();
+            }));
+            this._listeners.push(this._swipePan);
             // scope has been clicked
             this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function(evt) {
                 if (this.get("type") === "scope") {
@@ -511,13 +509,13 @@ function (
                                 });
                                 // Non graphics layer
                             } else {
+                                // If CSS Transformation is applied to the layer (i.e. swipediv),
+                                // record the amount of translation and adjust clip rect
+                                // accordingly
+                                var divStyle = layerNode.style, ty = 0, tx = 0;
                                 // clip div
                                 if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
-                                    // If CSS Transformation is applied to the layer (i.e. swipediv),
-                                    // record the amount of translation and adjust clip rect
-                                    // accordingly
-                                    var tx = 0,
-                                        ty = 0;
+                                    // css3 transform support
                                     if (this.map.navigationMode === "css-transforms") {
                                         var prefix = "";
                                         if (sniff("webkit")) {
@@ -532,7 +530,6 @@ function (
                                         if (sniff("opera")) {
                                             prefix = "-o-";
                                         }
-                                        var divStyle = layerNode.style;
                                         if (divStyle) {
                                             var transformValue = divStyle.getPropertyValue(prefix + "transform");
                                             if (transformValue) {
@@ -552,6 +549,21 @@ function (
                                                 topval -= ty;
                                                 bottomval -= ty;
                                             }
+                                        }
+                                    }
+                                    else{
+                                        // no css3 transform
+                                        if (divStyle) {
+                                            try {
+                                               tx = parseFloat(divStyle.getPropertyValue("left").replace(/px/ig, "").replace(/\s/i, ""));
+                                               ty = parseFloat(divStyle.getPropertyValue("top").replace(/px/ig, "").replace(/\s/i, ""));
+                                            } catch (e) {
+                                                console.error(e);
+                                            }
+                                            leftval -= tx;
+                                            rightval -= tx;
+                                            topval -= ty;
+                                            bottomval -= ty;
                                         }
                                     }
                                     // browser is IE
