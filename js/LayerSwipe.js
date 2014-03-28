@@ -284,8 +284,6 @@ function (
         _init: function() {
             // set type of swipe
             this._setSwipeType();
-            // move domnode into map layers node
-            domConstruct.place(this.domNode, this.map._layersDiv, 'last');
             // events
             this._setupEvents();
             // check if not enabled
