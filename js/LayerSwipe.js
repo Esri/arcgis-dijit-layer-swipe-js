@@ -8,8 +8,8 @@ define([
     "dijit/_TemplatedMixin",
     "dojo/on",
     // load template
-    "dojo/text!zesri/dijit/templates/LayerSwipe.html",
-    "dojo/i18n!zesri/nls/jsapi",
+    "dojo/text!application/dijit/templates/LayerSwipe.html",
+    "dojo/i18n!application/nls/jsapi",
     "dojo/dom-class",
     "dojo/dom-style",
     "dojo/dnd/move",
@@ -128,7 +128,9 @@ function (
             // wait until all layers are loaded and map is loaded
             this._allLoaded().then(lang.hitch(this, function() {
                 this._init();
-            }));
+            }), function(error){
+                console.log('LayerSwipe::' + error.message);
+            });
         },
         // connections/subscriptions will be cleaned up during the destroy() lifecycle phase
         destroy: function() {
@@ -210,18 +212,21 @@ function (
         },
         _setSwipeType: function() {
             // set the type
-            var moveBox, left, top;
-            if (this.get("type")) {
+            var moveBox, left, top, swipeType, cTop, cLeft;
+            swipeType = this.get("type");
+            cTop = this.get("top");
+            cLeft = this.get("left");
+            if (swipeType) {
                 // destroy existing swipe mover
                 if (this._swipeslider) {
                     this._swipeslider.destroy();
                 }
                 // add type class to movable node
-                domClass.add(this._moveableNode, this.get("type"));
+                domClass.add(this._moveableNode, swipeType);
                 // get position of movable node
                 moveBox = domGeom.getMarginBox(this._moveableNode);
                 // scope type
-                if (this.get("type") === "scope") {
+                if (swipeType === "scope") {
                     // create movable
                     this._swipeslider = new move.constrainedMoveable(this._moveableNode, {
                         handle: this._moveableNode.id,
@@ -233,14 +238,14 @@ function (
                     left = (this.map.width / 2) - (moveBox.w / 2);
                     top = (this.map.height / 2) - (moveBox.h / 2);
                     // use positions if set on widget
-                    if (typeof this.get("top") !== 'undefined') {
-                        top = this.get("top");
+                    if (typeof cTop !== 'undefined') {
+                        top = cTop;
                     }
-                    if (typeof this.get("left") !== 'undefined') {
-                        left = this.get("left");
+                    if (typeof cLeft !== 'undefined') {
+                        left = cLeft;
                     }
                     // horizontal type
-                } else if (this.get("type") === "horizontal") {
+                } else if (swipeType === "horizontal") {
                     // create movable
                     this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
@@ -251,8 +256,8 @@ function (
                     left = 0;
                     top = (this.map.height / 4) - (moveBox.h / 2);
                     // use positions if set on widget
-                    if (typeof this.get("top") !== 'undefined') {
-                        top = this.get("top");
+                    if (typeof cTop !== 'undefined') {
+                        top = cTop;
                     }
                     // set clip var
                     this._clipval = top;
@@ -268,8 +273,8 @@ function (
                     left = (this.map.width / 4) - (moveBox.w / 2);
                     top = 0;
                     // use positions if set on widget
-                    if (typeof this.get("left") !== 'undefined') {
-                        left = this.get("left");
+                    if (typeof cLeft !== 'undefined') {
+                        left = cLeft;
                     }
                     // set clip var
                     this._clipval = left;
@@ -306,7 +311,8 @@ function (
         },
         _setClipValue: function() {
             var moveBox = domGeom.getMarginBox(this._moveableNode);
-            if (this.get("type") === "vertical") {
+            var swipeType = this.get("type");
+            if (swipeType === "vertical") {
                 var leftInt = moveBox.l;
                 if (leftInt <= 0) {
                     this._clipval = 0;
@@ -315,7 +321,7 @@ function (
                 } else {
                     this._clipval = leftInt;
                 }
-            } else if (this.get("type") === "horizontal") {
+            } else if (swipeType === "horizontal") {
                 var topInt = moveBox.t;
                 if (topInt <= 0) {
                     this._clipval = 0;
@@ -398,11 +404,13 @@ function (
                         // layer graphics
                         var layerGraphics = this.layers[i].graphics;
                         // position and extent variables
-                        var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox;
+                        var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, clip, swipeType;
+                        clip = this.get("clip");
+                        swipeType = this.get("type");
                         // movable node position
                         moveBox = domGeom.getMarginBox(this._moveableNode);
                         // vertical and horizontal nodes
-                        if (this.get("type") === "vertical" || this.get("type") === "horizontal") {
+                        if (swipeType === "vertical" || swipeType === "horizontal") {
                             // if layer has a div
                             if (layerNode) {
                                 // get layer node position
@@ -411,7 +419,7 @@ function (
                             // map node position
                             mapBox = domGeom.getMarginBox(this.map.root);
                         }
-                        if (this.get("type") === "vertical") {
+                        if (swipeType === "vertical") {
                             if (layerBox && layerBox.l > 0) {
                                 rightval = this._clipval - Math.abs(layerBox.l);
                                 leftval = -(layerBox.l);
@@ -432,7 +440,7 @@ function (
                                 topval = 0;
                                 bottomval = mapBox.h;
                             }
-                        } else if (this.get("type") === "horizontal") {
+                        } else if (swipeType === "horizontal") {
                             if (layerBox && layerBox.t > 0) {
                                 bottomval = this._clipval - Math.abs(layerBox.t);
                                 topval = -(layerBox.t);
@@ -453,18 +461,18 @@ function (
                                 leftval = 0;
                                 rightval = mapBox.w;
                             }
-                        } else if (this.get("type") === "scope") {
+                        } else if (swipeType === "scope") {
                             // graphics layer svg
                             if (layerGraphics) {
                                 leftval = moveBox.l;
                                 rightval = moveBox.w;
                                 topval = moveBox.t;
                                 bottomval = moveBox.h;
-                                if (typeof this.get("clip") !== 'undefined') {
-                                    leftval += this.get("clip");
-                                    rightval += -(this.get("clip") * 2);
-                                    topval += this.get("clip");
-                                    bottomval += -(this.get("clip") * 2);
+                                if (typeof clip !== 'undefined') {
+                                    leftval += clip;
+                                    rightval += -(clip * 2);
+                                    topval += clip;
+                                    bottomval += -(clip * 2);
                                 }
                             }
                             // div layer
@@ -473,11 +481,11 @@ function (
                                 rightval = leftval + moveBox.w;
                                 topval = moveBox.t;
                                 bottomval = topval + moveBox.h;
-                                if (typeof this.get("clip") !== 'undefined') {
-                                    leftval += this.get("clip");
-                                    rightval += -this.get("clip");
-                                    topval += this.get("clip");
-                                    bottomval += -this.get("clip");
+                                if (typeof clip !== 'undefined') {
+                                    leftval += clip;
+                                    rightval += -clip;
+                                    topval += clip;
+                                    bottomval += -clip;
                                 }
                             }
                         }

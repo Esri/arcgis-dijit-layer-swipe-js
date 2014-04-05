@@ -105,10 +105,7 @@
         // The locationPath logic below may look confusing but all its doing is 
         // enabling us to load the api from a CDN and load local modules from the correct location.
         packages: [{
-            name: "modules",
-            location: package_path + '/js'
-        }, {
-            name: "zesri",
+            name: "application",
             location: package_path + '/js'
         }]
     };
@@ -116,7 +113,7 @@
 <script src="http://js.arcgis.com/3.9/" type="text/javascript"></script>
 <script type="text/javascript">
         var swipeWidget, swipeWidget2;
-        require(["dojo/_base/lang", "esri/map", "modules/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom", "dojo/query"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom, query){
+        require(["dojo/_base/lang", "esri/map", "application/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom", "dojo/query"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom, query){
             arcgisUtils.createMap('b087539934df47429b7c315760588b19', "map", {
                 mapOptions: {
                     //Optionally define additional map config here for example you can 
