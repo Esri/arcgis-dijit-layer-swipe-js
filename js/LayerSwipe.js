@@ -81,6 +81,8 @@ function (
             layers: [],
             enabled: true,
             type: "vertical",
+            ltr: false,
+            ttb: true,
             clip: 9
         },
         // lifecycle: 1
@@ -99,10 +101,14 @@ function (
             this.set("enabled", defaults.enabled);
             this.set("type", defaults.type);
             this.set("clip", defaults.clip);
+            this.set("ltr", defaults.ltr);
+            this.set("ttb", defaults.ttb);
             // listeners
             this.watch("theme", this._updateThemeWatch);
             this.watch("enabled", this._enabled);
             this.watch("type", this._type);
+            this.watch("ltr", this._ltr);
+            this.watch("ttb", this._ttb);
             // classes
             this._css = {
                 handleContainer: "handleContainer",
@@ -420,9 +426,11 @@ function (
                         // layer graphics
                         var layerGraphics = this.layers[i].graphics;
                         // position and extent variables
-                        var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, clip, swipeType;
+                        var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, clip, swipeType, ltr, ttb;
                         clip = this.get("clip");
                         swipeType = this.get("type");
+                        ltr = this.get("ltr");
+                        ttb = this.get("ttb");
                         // movable node position
                         moveBox = domGeom.getMarginBox(this._moveableNode);
                         // vertical and horizontal nodes
@@ -436,15 +444,37 @@ function (
                             mapBox = domGeom.getMarginBox(this.map.root);
                         }
                         if (swipeType === "vertical") {
-                            if (layerBox && layerBox.l > 0) {
-                                rightval = this._clipval - Math.abs(layerBox.l);
-                                leftval = -(layerBox.l);
-                            } else if (layerBox && layerBox.l < 0) {
-                                leftval = 0;
-                                rightval = this._clipval + Math.abs(layerBox.l);
-                            } else {
-                                leftval = 0;
-                                rightval = this._clipval;
+                            if(ltr){
+                                if (layerBox && layerBox.l > 0) {
+                                    // leftval is greater than zero
+                                    leftval = -(layerBox.l);
+                                    rightval = this._clipval - Math.abs(layerBox.l);
+                                } else if (layerBox && layerBox.l < 0) {
+                                    // leftval is less than zero
+                                    leftval = 0;
+                                    rightval = this._clipval + Math.abs(layerBox.l);
+                                } else {
+                                    // leftval is ok
+                                    leftval = 0;
+                                    rightval = this._clipval;
+                                }    
+                            }
+                            else{
+                                if (layerBox && layerBox.l > 0) {
+                                    // leftval is less than zero
+                                    // todo
+                                    //leftval = -(layerBox.l);
+                                    //rightval = this._clipval - Math.abs(layerBox.l);
+                                } else if (layerBox && layerBox.l < 0) {
+                                    // leftval is greater than map width
+                                    // todo
+                                    //leftval = 0;
+                                    //rightval = this.map.width - this._clipval;
+                                } else {
+                                    // leftval is ok
+                                    leftval = this._clipval;
+                                    rightval = this.map.width;
+                                }
                             }
                             if (layerBox && layerBox.t > 0) {
                                 topval = -(layerBox.t);
@@ -679,6 +709,12 @@ function (
                     }
                 }
             }
+        },
+        _ltr: function(){
+            this.swipe();  
+        },
+        _ttb: function(){
+            this.swipe();  
         },
         _enabled: function() {
             if (this.get("enabled")) {

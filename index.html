@@ -59,6 +59,9 @@
 		</div>
 	</div>
 </div>
+<div class="buttonItem" id="toggleLTR">
+	Toggle ltr
+</div>
 <div class="buttonItem" id="toggleLayer">
 	Toggle Layer Visibility
 </div>
@@ -144,6 +147,9 @@
                     layers: [layer]
                 }, "LayerSwipe");
                 swipeWidget.startup();
+                on(dom.byId('toggleLTR'), 'click', function(){
+                    swipeWidget.set("ltr", !swipeWidget.get("ltr")); 
+                });
                 on(dom.byId('toggleLayer'), 'click', function(){
                     layer.setVisibility(!layer.visible);
                 });
