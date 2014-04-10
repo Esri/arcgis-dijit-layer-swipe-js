@@ -346,7 +346,8 @@ function (
             // map resized
             this._mapResize = on.pausable(this.map, 'resize', lang.hitch(this, function() {
                 // be responsive. Don't let the slider get outside of map
-                this._setInitialPosition();
+                // todo
+                //this._setInitialPosition();
             }));
             this._listeners.push(this._mapResize);
             // swipe move
