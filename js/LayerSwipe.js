@@ -210,12 +210,56 @@ function (
             b.h = mapBox.h + mapBox.t;
             return b;
         },
-        _setSwipeType: function() {
-            // set the type
-            var moveBox, left, top, swipeType, cTop, cLeft;
+        _setInitialPosition: function(){
+            var left, top, swipeType, moveBox, cTop, cLeft;
             swipeType = this.get("type");
+            moveBox = domGeom.getMarginBox(this._moveableNode);
             cTop = this.get("top");
             cLeft = this.get("left");
+            // scope type
+            if (swipeType === "scope") {
+                // set initial position
+                left = (this.map.width / 2) - (moveBox.w / 2);
+                top = (this.map.height / 2) - (moveBox.h / 2);
+                // use positions if set on widget
+                if (typeof cTop !== 'undefined') {
+                    top = cTop;
+                }
+                if (typeof cLeft !== 'undefined') {
+                    left = cLeft;
+                }
+                // horizontal type
+            } else if (swipeType === "horizontal") {
+                // set initial position
+                left = 0;
+                top = (this.map.height / 4) - (moveBox.h / 2);
+                // use positions if set on widget
+                if (typeof cTop !== 'undefined') {
+                    top = cTop;
+                }
+                // set clip var
+                this._clipval = top;
+                // vertical type
+            } else {
+                // set initial position
+                left = (this.map.width / 4) - (moveBox.w / 2);
+                top = 0;
+                // use positions if set on widget
+                if (typeof cLeft !== 'undefined') {
+                    left = cLeft;
+                }
+                // set clip var
+                this._clipval = left;
+            }
+            // set position
+            domStyle.set(this._moveableNode, {
+                top: top + "px",
+                left: left + "px"
+            });
+        },
+        _setSwipeType: function() {
+            // set the type
+            var swipeType = this.get("type");
             if (swipeType) {
                 // destroy existing swipe mover
                 if (this._swipeslider) {
@@ -223,8 +267,6 @@ function (
                 }
                 // add type class to movable node
                 domClass.add(this._moveableNode, swipeType);
-                // get position of movable node
-                moveBox = domGeom.getMarginBox(this._moveableNode);
                 // scope type
                 if (swipeType === "scope") {
                     // create movable
@@ -234,16 +276,6 @@ function (
                         within: true,
                         mover: patchedMover
                     });
-                    // set initial position
-                    left = (this.map.width / 2) - (moveBox.w / 2);
-                    top = (this.map.height / 2) - (moveBox.h / 2);
-                    // use positions if set on widget
-                    if (typeof cTop !== 'undefined') {
-                        top = cTop;
-                    }
-                    if (typeof cLeft !== 'undefined') {
-                        left = cLeft;
-                    }
                     // horizontal type
                 } else if (swipeType === "horizontal") {
                     // create movable
@@ -252,16 +284,6 @@ function (
                         within: true,
                         mover: patchedMover
                     });
-                    // set initial position
-                    left = 0;
-                    top = (this.map.height / 4) - (moveBox.h / 2);
-                    // use positions if set on widget
-                    if (typeof cTop !== 'undefined') {
-                        top = cTop;
-                    }
-                    // set clip var
-                    this._clipval = top;
-                    // vertical type
                 } else {
                     // create movable
                     this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
@@ -269,21 +291,8 @@ function (
                         within: true,
                         mover: patchedMover
                     });
-                    // set initial position
-                    left = (this.map.width / 4) - (moveBox.w / 2);
-                    top = 0;
-                    // use positions if set on widget
-                    if (typeof cLeft !== 'undefined') {
-                        left = cLeft;
-                    }
-                    // set clip var
-                    this._clipval = left;
                 }
-                // set position
-                domStyle.set(this._moveableNode, {
-                    top: top + "px",
-                    left: left + "px"
-                });
+                this._setInitialPosition();
             }
         },
         _init: function() {
@@ -334,6 +343,12 @@ function (
         },
         _setupEvents: function() {
             this._removeEvents();
+            // map resized
+            this._mapResize = on.pausable(this.map, 'resize', lang.hitch(this, function() {
+                // be responsive. Don't let the slider get outside of map
+                this._setInitialPosition();
+            }));
+            this._listeners.push(this._mapResize);
             // swipe move
             this._swipeMove = on.pausable(this._swipeslider, 'Move', lang.hitch(this, function() {
                 this.swipe();
