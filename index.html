@@ -20,7 +20,7 @@
         border-radius: 3px;
         margin-bottom:20px;
     }
-    #map, #map2{
+    #map{
         width:100%;
         height: 500px;
         position: relative;
@@ -138,8 +138,6 @@
                 swipeWidget = new LayerSwipe({
                     type: "vertical",
                     map: map,
-                    ltr: false,
-                    ttb: false,
                     layers: [layer]
                 }, "LayerSwipe");
                 swipeWidget.startup();
