@@ -602,8 +602,8 @@ function (
                                         if (divStyle && swipeType === "scope") {
                                             // update values if using scope
                                             try {
-                                               tx = parseFloat(divStyle.getPropertyValue("left").replace(/px/ig, "").replace(/\s/i, ""));
-                                               ty = parseFloat(divStyle.getPropertyValue("top").replace(/px/ig, "").replace(/\s/i, ""));
+                                               tx = parseFloat(divStyle.left.replace(/px/ig, "").replace(/\s/i, ""));
+                                               ty = parseFloat(divStyle.top.replace(/px/ig, "").replace(/\s/i, ""));
                                             } catch (e) {
                                                 console.error(e);
                                             }
@@ -655,7 +655,7 @@ function (
                     "-o-transform"
                 ];
                 for(var i = 0; i < vendors.length; i++){
-                    transformValue = nodeStyle.getPropertyValue(vendors[i]);
+                    transformValue = nodeStyle[vendors[i]];
                     if(transformValue){
                         break;
                     }
