@@ -17,7 +17,6 @@ define([
     "dojo/sniff",
     "dojo/dom-geometry",
     "esri/geometry/Point",
-    "dojo/dom-construct",
     "dojo/Deferred",
     "dojo/promise/all"
 ],
@@ -35,7 +34,6 @@ function (
     sniff,
     domGeom,
     Point,
-    domConstruct,
     Deferred,
     all
 ) {
@@ -601,7 +599,8 @@ function (
                                     }
                                     else{
                                         // no css3 transform
-                                        if (divStyle) {
+                                        if (divStyle && swipeType === "scope") {
+                                            // update values if using scope
                                             try {
                                                tx = parseFloat(divStyle.getPropertyValue("left").replace(/px/ig, "").replace(/\s/i, ""));
                                                ty = parseFloat(divStyle.getPropertyValue("top").replace(/px/ig, "").replace(/\s/i, ""));
@@ -664,11 +663,14 @@ function (
             }
             return transformValue;
         },
-        _updateThemeWatch: function(attr, oldVal, newVal) {
+        _updateThemeWatch: function() {
+            var oldVal = arguments[1];
+            var newVal = arguments[2];
             domClass.remove(this.domNode, oldVal);
             domClass.add(this.domNode, newVal);
         },
-        _type: function(attr, oldVal, newVal) {
+        _type: function() {
+            var oldVal = arguments[1];
             // remove old css class
             if (oldVal) {
                 domClass.remove(this._moveableNode, oldVal);
