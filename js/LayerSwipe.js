@@ -45,7 +45,7 @@ function (
     //      l = m.l;
     //      t = m.t;
     var patchedMover = declare([Mover], {
-        onFirstMove: function(e) {
+        onFirstMove: function (e) {
             var s = this.node.style,
                 l, t, h = this.host;
             switch (s.position) {
@@ -83,7 +83,7 @@ function (
             clip: 9
         },
         // lifecycle: 1
-        constructor: function(options, srcRefNode) {
+        constructor: function (options, srcRefNode) {
             // mix in settings and defaults
             var defaults = lang.mixin({}, this.options, options);
             // widget node
@@ -115,7 +115,7 @@ function (
             this._listeners = [];
         },
         // start widget. called by user
-        startup: function() {
+        startup: function () {
             // map not defined
             if (!this.map) {
                 this.destroy();
@@ -129,19 +129,19 @@ function (
                 console.log('LayerSwipe::layer required');
             }
             // wait until all layers are loaded and map is loaded
-            this._allLoaded().then(lang.hitch(this, function() {
+            this._allLoaded().then(lang.hitch(this, function () {
                 this._init();
-            }), function(error){
+            }), function (error) {
                 console.log('LayerSwipe::' + error.message);
             });
         },
         // connections/subscriptions will be cleaned up during the destroy() lifecycle phase
-        destroy: function() {
+        destroy: function () {
             this._removeEvents();
             this._unclipLayers();
             this.inherited(arguments);
         },
-        swipe: function() {
+        swipe: function () {
             this._setClipValue();
             this._swipe();
         },
@@ -153,16 +153,16 @@ function (
         /* ---------------- */
         /* Public Functions */
         /* ---------------- */
-        enable: function() {
+        enable: function () {
             this.set("enabled", true);
         },
-        disable: function() {
+        disable: function () {
             this.set("enabled", false);
         },
         /* ---------------- */
         /* Private Functions */
         /* ---------------- */
-        _allLoaded: function() {
+        _allLoaded: function () {
             var loadPromises = [];
             // all layers
             for (var i = 0; i < this.layers.length; i++) {
@@ -189,7 +189,7 @@ function (
             // if map is not loaded
             if (!this.map.loaded) {
                 // when map is loaded
-                on.once(this.map, "load", lang.hitch(this, function() {
+                on.once(this.map, "load", lang.hitch(this, function () {
                     mapLoadDef.resolve('map loaded');
                 }));
             } else {
@@ -198,12 +198,12 @@ function (
             loadPromises.push(mapLoadDef.promise);
             return all(loadPromises);
         },
-        _layerLoadedPromise: function(i, def) {
-            on.once(this.layers[i], 'load', function() {
+        _layerLoadedPromise: function (i, def) {
+            on.once(this.layers[i], 'load', function () {
                 def.resolve('layer loaded');
             });
         },
-        _mb: function() {
+        _mb: function () {
             // set containing coordinates for scope type
             var mapBox = domGeom.getMarginBox(this.map.root);
             var b = {};
@@ -213,7 +213,7 @@ function (
             b.h = mapBox.h + mapBox.t;
             return b;
         },
-        _setInitialPosition: function(){
+        _setInitialPosition: function () {
             // starting position of tool
             var left, top, swipeType, moveBox, cTop, cLeft, ttb, ltr;
             swipeType = this.get("type");
@@ -239,10 +239,9 @@ function (
                 // horizontal type
                 // set initial position
                 left = 0;
-                if(ttb){
-                    top = (this.map.height / 4) - (moveBox.h / 2);   
-                }
-                else{
+                if (ttb) {
+                    top = (this.map.height / 4) - (moveBox.h / 2);
+                } else {
                     top = this.map.height - ((this.map.height / 4) - (moveBox.h / 2));
                 }
                 // use positions if set on widget
@@ -254,10 +253,9 @@ function (
             } else {
                 // vertical type
                 // set initial position
-                if(ltr){
-                    left = (this.map.width / 4) - (moveBox.w / 2);    
-                }
-                else{
+                if (ltr) {
+                    left = (this.map.width / 4) - (moveBox.w / 2);
+                } else {
                     left = this.map.width - ((this.map.width / 4) - (moveBox.w / 2));
                 }
                 top = 0;
@@ -274,7 +272,7 @@ function (
                 left: left + "px"
             });
         },
-        _setSwipeType: function() {
+        _setSwipeType: function () {
             // set the type
             var swipeType = this.get("type");
             if (swipeType) {
@@ -312,7 +310,7 @@ function (
                 this._setInitialPosition();
             }
         },
-        _init: function() {
+        _init: function () {
             // set type of swipe
             this._setSwipeType();
             // events
@@ -325,7 +323,7 @@ function (
             // giddyup
             this.swipe();
         },
-        _removeEvents: function() {
+        _removeEvents: function () {
             if (this._listeners && this._listeners.length) {
                 for (var i = 0; i < this._listeners.length; i++) {
                     if (this._listeners[i]) {
@@ -335,7 +333,7 @@ function (
             }
             this._listeners = [];
         },
-        _setClipValue: function() {
+        _setClipValue: function () {
             // todo set for ttb and ltr
             var moveBox = domGeom.getMarginBox(this._moveableNode);
             var swipeType = this.get("type");
@@ -359,57 +357,57 @@ function (
                 }
             }
         },
-        _repositionMover: function(){
+        _repositionMover: function () {
             var moveBox = domGeom.getMarginBox(this._moveableNode);
             // if mover is outside of where it should be
-            if(moveBox && (
-                    // move top is more than map height
-                    moveBox.t > this.map.height ||
-                    // move top is less than zero
-                    moveBox.t < 0 ||
-                    // move left is more than map width
-                    moveBox.l > this.map.width ||
-                    // move left is less than zero
-                    moveBox.l < 0
-            )){
+            if (moveBox && (
+                // move top is more than map height
+                moveBox.t > this.map.height ||
+                // move top is less than zero
+                moveBox.t < 0 ||
+                // move left is more than map width
+                moveBox.l > this.map.width ||
+                // move left is less than zero
+                moveBox.l < 0
+            )) {
                 this._setInitialPosition();
             }
         },
-        _setupEvents: function() {
+        _setupEvents: function () {
             this._removeEvents();
             // map resized
-            this._mapResize = on.pausable(this.map, 'resize', lang.hitch(this, function() {
+            this._mapResize = on.pausable(this.map, 'resize', lang.hitch(this, function () {
                 // be responsive. Don't let the slider get outside of map
                 this._repositionMover();
             }));
             this._listeners.push(this._mapResize);
             // swipe move
-            this._swipeMove = on.pausable(this._swipeslider, 'Move', lang.hitch(this, function() {
+            this._swipeMove = on.pausable(this._swipeslider, 'Move', lang.hitch(this, function () {
                 this.swipe();
             }));
             this._listeners.push(this._swipeMove);
             // done panning
-            this._swipePanEnd = on.pausable(this.map, 'pan-end', lang.hitch(this, function() {
+            this._swipePanEnd = on.pausable(this.map, 'pan-end', lang.hitch(this, function () {
                 this._swipe();
             }));
             this._listeners.push(this._swipePanEnd);
             // map graphics start update
-            this._mapUpdateStart = on.pausable(this.map, 'update-start', lang.hitch(this, function() {
+            this._mapUpdateStart = on.pausable(this.map, 'update-start', lang.hitch(this, function () {
                 this._swipe();
             }));
             this._listeners.push(this._mapUpdateStart);
             // map graphics have been updated
-            this._mapUpdateEnd = on.pausable(this.map, 'update-end', lang.hitch(this, function() {
+            this._mapUpdateEnd = on.pausable(this.map, 'update-end', lang.hitch(this, function () {
                 this._swipe();
             }));
             this._listeners.push(this._mapUpdateEnd);
             // css panning
-            this._swipePan = on.pausable(this.map, 'pan', lang.hitch(this, function() {
+            this._swipePan = on.pausable(this.map, 'pan', lang.hitch(this, function () {
                 this._swipe();
             }));
             this._listeners.push(this._swipePan);
             // scope has been clicked
-            this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function(evt) {
+            this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function (evt) {
                 if (this.get("type") === "scope") {
                     if (this.map.hasOwnProperty('onClick') && typeof this.map.onClick === 'function' && this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
                         var position = domGeom.position(this.map.root, true);
@@ -430,7 +428,7 @@ function (
             }));
             this._listeners.push(this._toolClick);
             // scope mouse down click
-            this._evtCoords = on.pausable(this._swipeslider, "MouseDown", lang.hitch(this, function(evt) {
+            this._evtCoords = on.pausable(this._swipeslider, "MouseDown", lang.hitch(this, function (evt) {
                 if (this.get("type") === "scope") {
                     this._clickCoords = {
                         x: evt.x,
@@ -440,7 +438,7 @@ function (
             }));
             this._listeners.push(this._evtCoords);
         },
-        _positionValues: function(layer){
+        _positionValues: function (layer) {
             // position and extent variables
             var layerBox, moveBox, mapBox, clip, ltr, ttb;
             // position object to return
@@ -475,7 +473,7 @@ function (
             }
             if (p.swipeType === "vertical") {
                 // x values
-                if(ltr){
+                if (ltr) {
                     if (layerBox && layerBox.l > 0) {
                         // p.l is greater than zero
                         p.l = -(layerBox.l);
@@ -489,8 +487,7 @@ function (
                         p.l = 0;
                         p.r = this._clipval;
                     }
-                }
-                else{
+                } else {
                     if (layerBox && layerBox.l > 0) {
                         // p.l is less than zero
                         p.l = this._clipval - Math.abs(layerBox.l);
@@ -521,7 +518,7 @@ function (
                 }
             } else if (p.swipeType === "horizontal") {
                 // y values
-                if(ttb){
+                if (ttb) {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
                         p.b = this._clipval - Math.abs(layerBox.t);
@@ -535,8 +532,7 @@ function (
                         p.t = 0;
                         p.b = this._clipval;
                     }
-                }
-                else{
+                } else {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
                         p.t = this._clipval - Math.abs(layerBox.t);
@@ -577,8 +573,7 @@ function (
                         p.t += clip;
                         p.b += -(clip * 2);
                     }
-                }
-                else {
+                } else {
                     // div layer
                     p.l = moveBox.l;
                     p.r = p.l + moveBox.w;
@@ -596,7 +591,7 @@ function (
             }
             return p;
         },
-        _clipLayer: function(p){
+        _clipLayer: function (p) {
             // if layer has a node we can clip
             if (p.layerNode) {
                 // graphics layer type
@@ -625,7 +620,8 @@ function (
                     // Non graphics layer
                     // If CSS Transformation is applied to the layer (i.e. swipediv),
                     // record the amount of translation and adjust clip rect accordingly
-                    var divStyle = p.layerNode.style, t;
+                    var divStyle = p.layerNode.style,
+                        t;
                     // clip div
                     if (
                         // has position object
@@ -657,8 +653,7 @@ function (
                                     p.b -= t.y;
                                 }
                             }
-                        }
-                        else{
+                        } else {
                             // no css3 transform
                             if (divStyle && p.swipeType === "scope") {
                                 t = this._parseScopeStyle(divStyle);
@@ -689,7 +684,7 @@ function (
                 console.log('LayerSwipe::Invalid layer type');
             }
         },
-        _swipe: function() {
+        _swipe: function () {
             if (this.get("loaded") && this.get("enabled")) {
                 var emitObj = {
                     layers: []
@@ -715,32 +710,31 @@ function (
                 this.emit("swipe", emitObj);
             }
         },
-        _getTransformValue: function(nodeStyle){
+        _getTransformValue: function (nodeStyle) {
             var transformValue, vendors;
-            if(nodeStyle){
+            if (nodeStyle) {
                 vendors = [
-                    "transform",
-                    "-webkit-transform",
-                    "-ms-transform",
-                    "-moz-transform",
-                    "-o-transform"
-                ];
-                for(var i = 0; i < vendors.length; i++){
+                "transform",
+                "-webkit-transform",
+                "-ms-transform",
+                "-moz-transform",
+                "-o-transform"
+            ];
+                for (var i = 0; i < vendors.length; i++) {
                     transformValue = nodeStyle[vendors[i]];
-                    if(transformValue){
+                    if (transformValue) {
                         break;
                     }
                 }
             }
             return transformValue;
         },
-        _parseTransformValue: function(transformValue){
+        _parseTransformValue: function (transformValue) {
             var t = {};
             if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
                 // get 3d version of translate
                 transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
-            }
-            else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
+            } else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
                 // get 2d version of translate
                 transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
             }
@@ -754,7 +748,7 @@ function (
             }
             return t;
         },
-        _parseScopeStyle: function(divStyle){
+        _parseScopeStyle: function (divStyle) {
             // defualt object with offset of zero
             var t = {
                 x: 0,
@@ -771,14 +765,14 @@ function (
             // return object
             return t;
         },
-        _updateThemeWatch: function() {
+        _updateThemeWatch: function () {
             // change the theme style
             var oldVal = arguments[1];
             var newVal = arguments[2];
             domClass.remove(this.domNode, oldVal);
             domClass.add(this.domNode, newVal);
         },
-        _type: function() {
+        _type: function () {
             var oldVal = arguments[1];
             // remove old css class
             if (oldVal) {
@@ -791,21 +785,21 @@ function (
             // swipe new position
             this.swipe();
         },
-        _pauseEvents: function() {
+        _pauseEvents: function () {
             if (this._listeners && this._listeners.length) {
                 for (var i = 0; i < this._listeners.length; i++) {
                     this._listeners[i].pause();
                 }
             }
         },
-        _resumeEvents: function() {
+        _resumeEvents: function () {
             if (this._listeners && this._listeners.length) {
                 for (var i = 0; i < this._listeners.length; i++) {
                     this._listeners[i].resume();
                 }
             }
         },
-        _unclipLayers: function() {
+        _unclipLayers: function () {
             if (this.get("loaded") && this.layers && this.layers.length) {
                 for (var i = 0; i < this.layers.length; i++) {
                     // layer div
@@ -836,13 +830,13 @@ function (
                 }
             }
         },
-        _ltr: function(){
-            this.swipe();  
+        _ltr: function () {
+            this.swipe();
         },
-        _ttb: function(){
-            this.swipe();  
+        _ttb: function () {
+            this.swipe();
         },
-        _enabled: function() {
+        _enabled: function () {
             if (this.get("enabled")) {
                 // widget enabled
                 domStyle.set(this.domNode, 'display', 'block');
