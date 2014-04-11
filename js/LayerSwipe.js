@@ -7,7 +7,6 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dojo/on",
-    // load template
     "dojo/text!application/dijit/templates/LayerSwipe.html",
     "dojo/i18n!application/nls/jsapi",
     "dojo/dom-class",
@@ -79,7 +78,7 @@ function (
             layers: [],
             enabled: true,
             type: "vertical",
-            ltr: false,
+            ltr: true,
             ttb: true,
             clip: 9
         },
@@ -215,13 +214,17 @@ function (
             return b;
         },
         _setInitialPosition: function(){
-            var left, top, swipeType, moveBox, cTop, cLeft;
+            // starting position of tool
+            var left, top, swipeType, moveBox, cTop, cLeft, ttb, ltr;
             swipeType = this.get("type");
             moveBox = domGeom.getMarginBox(this._moveableNode);
             cTop = this.get("top");
             cLeft = this.get("left");
-            // scope type
+            ttb = this.get("ttb");
+            ltr = this.get("ltr");
+            // type of swipe tool
             if (swipeType === "scope") {
+                // scope type
                 // set initial position
                 left = (this.map.width / 2) - (moveBox.w / 2);
                 top = (this.map.height / 2) - (moveBox.h / 2);
@@ -232,21 +235,31 @@ function (
                 if (typeof cLeft !== 'undefined') {
                     left = cLeft;
                 }
-                // horizontal type
             } else if (swipeType === "horizontal") {
+                // horizontal type
                 // set initial position
                 left = 0;
-                top = (this.map.height / 4) - (moveBox.h / 2);
+                if(ttb){
+                    top = (this.map.height / 4) - (moveBox.h / 2);   
+                }
+                else{
+                    top = this.map.height - ((this.map.height / 4) - (moveBox.h / 2));
+                }
                 // use positions if set on widget
                 if (typeof cTop !== 'undefined') {
                     top = cTop;
                 }
                 // set clip var
                 this._clipval = top;
-                // vertical type
             } else {
+                // vertical type
                 // set initial position
-                left = (this.map.width / 4) - (moveBox.w / 2);
+                if(ltr){
+                    left = (this.map.width / 4) - (moveBox.w / 2);    
+                }
+                else{
+                    left = this.map.width - ((this.map.width / 4) - (moveBox.w / 2));
+                }
                 top = 0;
                 // use positions if set on widget
                 if (typeof cLeft !== 'undefined') {
@@ -323,6 +336,7 @@ function (
             this._listeners = [];
         },
         _setClipValue: function() {
+            // todo set for ttb and ltr
             var moveBox = domGeom.getMarginBox(this._moveableNode);
             var swipeType = this.get("type");
             if (swipeType === "vertical") {
@@ -351,7 +365,6 @@ function (
             this._mapResize = on.pausable(this.map, 'resize', lang.hitch(this, function() {
                 // be responsive. Don't let the slider get outside of map
                 // todo
-                //this._setInitialPosition();
             }));
             this._listeners.push(this._mapResize);
             // swipe move
