@@ -142,7 +142,6 @@ function (
             this.inherited(arguments);
         },
         swipe: function () {
-            this._setClipValue();
             this._swipe();
         },
         /* ---------------- */
@@ -248,8 +247,6 @@ function (
                 if (typeof cTop !== 'undefined') {
                     top = cTop;
                 }
-                // set clip var
-                this._clipval = top;
             } else {
                 // vertical type
                 // set initial position
@@ -263,8 +260,6 @@ function (
                 if (typeof cLeft !== 'undefined') {
                     left = cLeft;
                 }
-                // set clip var
-                this._clipval = left;
             }
             // set position
             domStyle.set(this._moveableNode, {
@@ -332,30 +327,6 @@ function (
                 }
             }
             this._listeners = [];
-        },
-        _setClipValue: function () {
-            // todo set for ttb and ltr
-            var moveBox = domGeom.getMarginBox(this._moveableNode);
-            var swipeType = this.get("type");
-            if (swipeType === "vertical") {
-                var leftInt = moveBox.l;
-                if (leftInt <= 0) {
-                    this._clipval = 0;
-                } else if (leftInt >= this.map.width) {
-                    this._clipval = this.map.width;
-                } else {
-                    this._clipval = leftInt;
-                }
-            } else if (swipeType === "horizontal") {
-                var topInt = moveBox.t;
-                if (topInt <= 0) {
-                    this._clipval = 0;
-                } else if (topInt >= this.map.height) {
-                    this._clipval = this.map.height;
-                } else {
-                    this._clipval = topInt;
-                }
-            }
         },
         _repositionMover: function () {
             var moveBox = domGeom.getMarginBox(this._moveableNode);
@@ -477,28 +448,28 @@ function (
                     if (layerBox && layerBox.l > 0) {
                         // p.l is greater than zero
                         p.l = -(layerBox.l);
-                        p.r = this._clipval - Math.abs(layerBox.l);
+                        p.r = moveBox.l - Math.abs(layerBox.l);
                     } else if (layerBox && layerBox.l < 0) {
                         // p.l is less than zero
                         p.l = 0;
-                        p.r = this._clipval + Math.abs(layerBox.l);
+                        p.r = moveBox.l + Math.abs(layerBox.l);
                     } else {
                         // p.l is zero
                         p.l = 0;
-                        p.r = this._clipval;
+                        p.r = moveBox.l;
                     }
                 } else {
                     if (layerBox && layerBox.l > 0) {
                         // p.l is less than zero
-                        p.l = this._clipval - Math.abs(layerBox.l);
+                        p.l = moveBox.l - Math.abs(layerBox.l);
                         p.r = this.map.width - Math.abs(layerBox.l);
                     } else if (layerBox && layerBox.l < 0) {
                         // p.l is greater than map width
-                        p.l = this._clipval + Math.abs(layerBox.l);
+                        p.l = moveBox.l + Math.abs(layerBox.l);
                         p.r = this.map.width + Math.abs(layerBox.l);
                     } else {
                         // p.l is zero
-                        p.l = this._clipval;
+                        p.l = moveBox.l;
                         p.r = this.map.width;
                     }
                 }
@@ -521,29 +492,29 @@ function (
                 if (ttb) {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
-                        p.b = this._clipval - Math.abs(layerBox.t);
+                        p.b = moveBox.t - Math.abs(layerBox.t);
                         p.t = -(layerBox.t);
                     } else if (layerBox && layerBox.t < 0) {
                         // top less than zero
                         p.t = 0;
-                        p.b = this._clipval + Math.abs(layerBox.t);
+                        p.b = moveBox.t + Math.abs(layerBox.t);
                     } else {
                         // top is zero
                         p.t = 0;
-                        p.b = this._clipval;
+                        p.b = moveBox.t;
                     }
                 } else {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
-                        p.t = this._clipval - Math.abs(layerBox.t);
+                        p.t = moveBox.t - Math.abs(layerBox.t);
                         p.b = this.map.height - Math.abs(layerBox.t);
                     } else if (layerBox && layerBox.t < 0) {
                         // top less than zero
-                        p.t = this._clipval + Math.abs(layerBox.t);
+                        p.t = moveBox.t + Math.abs(layerBox.t);
                         p.b = this.map.height + Math.abs(layerBox.t);
                     } else {
                         // top is zero
-                        p.t = this._clipval;
+                        p.t = moveBox.t;
                         p.b = this.map.height;
                     }
                 }
