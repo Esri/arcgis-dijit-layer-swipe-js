@@ -425,6 +425,7 @@ function (
                         var layerGraphics = this.layers[i].graphics;
                         // position and extent variables
                         var rightval, leftval, topval, bottomval, layerBox, moveBox, mapBox, clip, swipeType, ltr, ttb;
+                        // get values
                         clip = this.get("clip");
                         swipeType = this.get("type");
                         ltr = this.get("ltr");
@@ -442,6 +443,7 @@ function (
                             mapBox = domGeom.getMarginBox(this.map.root);
                         }
                         if (swipeType === "vertical") {
+                            // x values
                             if(ltr){
                                 if (layerBox && layerBox.l > 0) {
                                     // leftval is greater than zero
@@ -474,27 +476,52 @@ function (
                                     rightval = this.map.width;
                                 }
                             }
+                            // y values
                             if (layerBox && layerBox.t > 0) {
+                                // top is greather than zero
                                 topval = -(layerBox.t);
                                 bottomval = mapBox.h - layerBox.t;
                             } else if (layerBox && layerBox.t < 0) {
+                                // top is less than zero
                                 topval = 0;
                                 bottomval = mapBox.h + Math.abs(layerBox.t);
                             } else {
+                                // topval is ok
                                 topval = 0;
                                 bottomval = mapBox.h;
                             }
                         } else if (swipeType === "horizontal") {
-                            if (layerBox && layerBox.t > 0) {
-                                bottomval = this._clipval - Math.abs(layerBox.t);
-                                topval = -(layerBox.t);
-                            } else if (layerBox && layerBox.t < 0) {
-                                topval = 0;
-                                bottomval = this._clipval + Math.abs(layerBox.t);
-                            } else {
-                                topval = 0;
-                                bottomval = this._clipval;
+                            // y values
+                            if(ttb){
+                                if (layerBox && layerBox.t > 0) {
+                                    // top greater than zero
+                                    bottomval = this._clipval - Math.abs(layerBox.t);
+                                    topval = -(layerBox.t);
+                                } else if (layerBox && layerBox.t < 0) {
+                                    // top less than zero
+                                    topval = 0;
+                                    bottomval = this._clipval + Math.abs(layerBox.t);
+                                } else {
+                                    // top is ok
+                                    topval = 0;
+                                    bottomval = this._clipval;
+                                }
                             }
+                            else{
+                                if (layerBox && layerBox.t > 0) {
+                                    // todo
+                                    //bottomval = this._clipval - Math.abs(layerBox.t);
+                                    //topval = -(layerBox.t);
+                                } else if (layerBox && layerBox.t < 0) {
+                                    // todo
+                                    //topval = 0;
+                                    //bottomval = this._clipval + Math.abs(layerBox.t);
+                                } else {
+                                    topval = this._clipval;
+                                    bottomval = this.map.height;
+                                }
+                            }
+                            // x values
                             if (layerBox && layerBox.l > 0) {
                                 leftval = -(layerBox.l);
                                 rightval = mapBox.w - layerBox.l;
@@ -562,7 +589,7 @@ function (
                                 // If CSS Transformation is applied to the layer (i.e. swipediv),
                                 // record the amount of translation and adjust clip rect
                                 // accordingly
-                                var divStyle = layerNode.style, ty = 0, tx = 0;
+                                var divStyle = layerNode.style, t, ty = 0, tx = 0;
                                 // clip div
                                 if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
                                     // css3 transform support
@@ -573,44 +600,23 @@ function (
                                             var transformValue = this._getTransformValue(divStyle);
                                             // if we have the transform values
                                             if (transformValue) {
-                                                if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
-                                                    // get 3d version of translate
-                                                    transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
-                                                }
-                                                else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
-                                                    // get 2d version of translate
-                                                    transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
-                                                }
-                                                try {
-                                                    // see if we can parse them as floats
-                                                    tx = parseFloat(transformValue[0]);
-                                                    ty = parseFloat(transformValue[1]);
-                                                } catch (e) {
-                                                    // something went wrong
-                                                    console.log('LayerSwipe::Error parsing transform float');
-                                                }
+                                                t = this._parseTransformValue(transformValue);
                                                 // set values
-                                                leftval -= tx;
-                                                rightval -= tx;
-                                                topval -= ty;
-                                                bottomval -= ty;
+                                                leftval -= t.x;
+                                                rightval -= t.x;
+                                                topval -= t.y;
+                                                bottomval -= t.y;
                                             }
                                         }
                                     }
                                     else{
                                         // no css3 transform
                                         if (divStyle && swipeType === "scope") {
-                                            // update values if using scope
-                                            try {
-                                               tx = parseFloat(divStyle.left.replace(/px/ig, "").replace(/\s/i, ""));
-                                               ty = parseFloat(divStyle.top.replace(/px/ig, "").replace(/\s/i, ""));
-                                            } catch (e) {
-                                                console.log('LayerSwipe::Error parsing div style float');
-                                            }
-                                            leftval -= tx;
-                                            rightval -= tx;
-                                            topval -= ty;
-                                            bottomval -= ty;
+                                            t = this._parseScopeStyle(divStyle);
+                                            leftval -= t.x;
+                                            rightval -= t.x;
+                                            topval -= t.y;
+                                            bottomval -= t.y;
                                         }
                                     }
                                     // CSS Clip rectangle
@@ -650,8 +656,8 @@ function (
                 vendors = [
                     "transform",
                     "-webkit-transform",
-                    "-moz-transform",
                     "-ms-transform",
+                    "-moz-transform",
                     "-o-transform"
                 ];
                 for(var i = 0; i < vendors.length; i++){
@@ -662,6 +668,37 @@ function (
                 }
             }
             return transformValue;
+        },
+        _parseTransformValue: function(transformValue){
+            var t = {};
+            if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
+                // get 3d version of translate
+                transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+            }
+            else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
+                // get 2d version of translate
+                transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
+            }
+            try {
+                // see if we can parse them as floats
+                t.x = parseFloat(transformValue[0]);
+                t.y = parseFloat(transformValue[1]);
+            } catch (e) {
+                // something went wrong
+                console.log('LayerSwipe::Error parsing transform float');
+            }
+            return t;
+        },
+        _parseScopeStyle: function(divStyle){
+            var t = {};
+            // update values if using scope
+            try {
+               t.x = parseFloat(divStyle.left.replace(/px/ig, "").replace(/\s/i, ""));
+               t.y = parseFloat(divStyle.top.replace(/px/ig, "").replace(/\s/i, ""));
+            } catch (e) {
+                console.log('LayerSwipe::Error parsing div style float');
+            }
+            return t;
         },
         _updateThemeWatch: function() {
             var oldVal = arguments[1];
