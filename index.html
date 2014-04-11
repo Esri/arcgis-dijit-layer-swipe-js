@@ -84,7 +84,7 @@
 	Toggle Widget Enabled
 </div>
 <div class="buttonItem" id="toggleStartup">
-	startup/destroy
+	Destroy
 </div>
 <ul class="changeTool">
 	<li><input id="vTool" type="radio" name="type" value="vertical" checked="checked"/><label for="vTool">Vertical</label></li>
@@ -109,7 +109,7 @@
 </script>
 <script src="http://js.arcgis.com/3.9/" type="text/javascript"></script>
 <script type="text/javascript">
-        var swipeWidget, swipeWidget2;
+        var swipeWidget, map;
         require(["dojo/_base/lang", "esri/map", "application/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom", "dojo/query"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom, query){
             arcgisUtils.createMap('b087539934df47429b7c315760588b19', "map", {
                 mapOptions: {
@@ -117,7 +117,7 @@
                     //turn the slider off, display info windows, disable wraparound 180, slider position and more. 
                 }
             }).then(lang.hitch(this, function (response) {
-                var map = response.map;
+                map = response.map;
                 // getting layer id by title
                 var title = "World Imagery";
                 var id;

@@ -359,12 +359,28 @@ function (
                 }
             }
         },
+        _repositionMover: function(){
+            var moveBox = domGeom.getMarginBox(this._moveableNode);
+            // if mover is outside of where it should be
+            if(moveBox && (
+                    // move top is more than map height
+                    moveBox.t > this.map.height ||
+                    // move top is less than zero
+                    moveBox.t < 0 ||
+                    // move left is more than map width
+                    moveBox.l > this.map.width ||
+                    // move left is less than zero
+                    moveBox.l < 0
+            )){
+                this._setInitialPosition();
+            }
+        },
         _setupEvents: function() {
             this._removeEvents();
             // map resized
             this._mapResize = on.pausable(this.map, 'resize', lang.hitch(this, function() {
                 // be responsive. Don't let the slider get outside of map
-                // todo
+                this._repositionMover();
             }));
             this._listeners.push(this._mapResize);
             // swipe move
