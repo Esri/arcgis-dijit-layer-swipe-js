@@ -81,7 +81,7 @@ function (
             layers: [],
             enabled: true,
             type: "vertical",
-            ltr: false,
+            ltr: true,
             ttb: true,
             clip: 9
         },
@@ -457,7 +457,7 @@ function (
                                     // leftval is ok
                                     leftval = 0;
                                     rightval = this._clipval;
-                                }    
+                                }
                             }
                             else{
                                 if (layerBox && layerBox.l > 0) {
@@ -569,33 +569,29 @@ function (
                                 if (typeof rightval !== 'undefined' && typeof leftval !== 'undefined' && typeof topval !== 'undefined' && typeof bottomval !== 'undefined') {
                                     // css3 transform support
                                     if (this.map.navigationMode === "css-transforms") {
-                                        var prefix = "";
-                                        if (sniff("webkit")) {
-                                            prefix = "-webkit-";
-                                        }
-                                        if (sniff("ff")) {
-                                            prefix = "-moz-";
-                                        }
-                                        if (sniff("ie")) {
-                                            prefix = "-ms-";
-                                        }
-                                        if (sniff("opera")) {
-                                            prefix = "-o-";
-                                        }
+                                        // if style exists
                                         if (divStyle) {
-                                            var transformValue = divStyle.getPropertyValue(prefix + "transform");
+                                            // get vendor transform value
+                                            var transformValue = this._getTransformValue(divStyle);
+                                            // if we have the transform values
                                             if (transformValue) {
                                                 if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
+                                                    // get 3d version of translate
                                                     transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
-                                                } else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
+                                                }
+                                                else if (transformValue.toLowerCase().indexOf("translate") !== -1) {
+                                                    // get 2d version of translate
                                                     transformValue = transformValue.replace("translate(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
                                                 }
                                                 try {
+                                                    // see if we can parse them as floats
                                                     tx = parseFloat(transformValue[0]);
                                                     ty = parseFloat(transformValue[1]);
                                                 } catch (e) {
+                                                    // something went wrong
                                                     console.error(e);
                                                 }
+                                                // set values
                                                 leftval -= tx;
                                                 rightval -= tx;
                                                 topval -= ty;
@@ -618,12 +614,11 @@ function (
                                             bottomval -= ty;
                                         }
                                     }
-                                    // browser is IE
-                                    var IE = sniff('ie');
                                     // CSS Clip rectangle
                                     var clipstring;
+                                    var ie = sniff('ie');
                                     // if IE and less than ie8
-                                    if (IE && IE < 8) {
+                                    if (ie && ie < 8) {
                                         //Syntax for clip "rect(top right bottom left)"
                                         clipstring = "rect(" + topval + "px " + rightval + "px " + bottomval + "px " + leftval + "px)";
                                     } else {
@@ -649,6 +644,25 @@ function (
                 }
                 this.emit("swipe", emitObj);
             }
+        },
+        _getTransformValue: function(nodeStyle){
+            var transformValue, vendors;
+            if(nodeStyle){
+                vendors = [
+                    "transform",
+                    "-webkit-transform",
+                    "-moz-transform",
+                    "-ms-transform",
+                    "-o-transform"
+                ];
+                for(var i = 0; i < vendors.length; i++){
+                    transformValue = nodeStyle.getPropertyValue(vendors[i]);
+                    if(transformValue){
+                        break;
+                    }
+                }
+            }
+            return transformValue;
         },
         _updateThemeWatch: function(attr, oldVal, newVal) {
             domClass.remove(this.domNode, oldVal);
@@ -697,9 +711,9 @@ function (
                         else {
                             var clipstring;
                             // test for IE
-                            var IE = sniff('ie');
+                            var ie = sniff('ie');
                             // if IE and less than ie8
-                            if (IE && IE < 8) {
+                            if (ie && ie < 8) {
                                 clipstring = "rect(auto auto auto auto)";
                             } else {
                                 clipstring = "auto";
