@@ -563,26 +563,30 @@ function (
                     p.r = mapBox.w;
                 }
             } else if (p.swipeType === "scope") {
-                // graphics layer svg
                 if (p.layerGraphics) {
+                    // graphics layer svg
                     p.l = moveBox.l;
                     p.r = moveBox.w;
                     p.t = moveBox.t;
                     p.b = moveBox.h;
+                    // clip property is set
                     if (typeof clip !== 'undefined') {
+                        // append clip values
                         p.l += clip;
                         p.r += -(clip * 2);
                         p.t += clip;
                         p.b += -(clip * 2);
                     }
                 }
-                // div layer
                 else {
+                    // div layer
                     p.l = moveBox.l;
                     p.r = p.l + moveBox.w;
                     p.t = moveBox.t;
                     p.b = p.t + moveBox.h;
+                    // clip property is set
                     if (typeof clip !== 'undefined') {
+                        // append clip values
                         p.l += clip;
                         p.r += -clip;
                         p.t += clip;
@@ -620,11 +624,23 @@ function (
                 } else {
                     // Non graphics layer
                     // If CSS Transformation is applied to the layer (i.e. swipediv),
-                    // record the amount of translation and adjust clip rect
-                    // accordingly
+                    // record the amount of translation and adjust clip rect accordingly
                     var divStyle = p.layerNode.style, t;
                     // clip div
-                    if (typeof p.r !== 'undefined' && typeof p.l !== 'undefined' && typeof p.t !== 'undefined' && typeof p.b !== 'undefined') {
+                    if (
+                        // has position object
+                        p &&
+                        // has style object
+                        divStyle &&
+                        // has right
+                        p.hasOwnProperty('r') &&
+                        // has left
+                        p.hasOwnProperty('l') &&
+                        // has top
+                        p.hasOwnProperty('t') &&
+                        // has bottom
+                        p.hasOwnProperty('b')
+                    ) {
                         // css3 transform support
                         if (this.map.navigationMode === "css-transforms") {
                             // if style exists
@@ -756,6 +772,7 @@ function (
             return t;
         },
         _updateThemeWatch: function() {
+            // change the theme style
             var oldVal = arguments[1];
             var newVal = arguments[2];
             domClass.remove(this.domNode, oldVal);
@@ -812,6 +829,7 @@ function (
                             } else {
                                 clipstring = "auto";
                             }
+                            // set clip on layer node
                             domStyle.set(layerNode, "clip", clipstring);
                         }
                     }
