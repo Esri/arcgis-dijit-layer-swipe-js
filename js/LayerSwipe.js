@@ -79,7 +79,7 @@ function (
             layers: [],
             enabled: true,
             type: "vertical",
-            ltr: true,
+            ltr: false,
             ttb: true,
             clip: 9
         },
@@ -462,14 +462,12 @@ function (
                             else{
                                 if (layerBox && layerBox.l > 0) {
                                     // leftval is less than zero
-                                    // todo
-                                    //leftval = -(layerBox.l);
-                                    //rightval = this._clipval - Math.abs(layerBox.l);
+                                    leftval = this._clipval - Math.abs(layerBox.l);
+                                    rightval = this.map.width - Math.abs(layerBox.l);
                                 } else if (layerBox && layerBox.l < 0) {
                                     // leftval is greater than map width
-                                    // todo
-                                    //leftval = 0;
-                                    //rightval = this.map.width - this._clipval;
+                                    leftval = this._clipval + Math.abs(layerBox.l);
+                                    rightval = this.map.width + Math.abs(layerBox.l);
                                 } else {
                                     // leftval is ok
                                     leftval = this._clipval;
@@ -510,12 +508,12 @@ function (
                             else{
                                 if (layerBox && layerBox.t > 0) {
                                     // todo
-                                    //bottomval = this._clipval - Math.abs(layerBox.t);
-                                    //topval = -(layerBox.t);
+                                    topval = this._clipval - Math.abs(layerBox.t);
+                                    bottomval = this.map.height - Math.abs(layerBox.t);
                                 } else if (layerBox && layerBox.t < 0) {
                                     // todo
-                                    //topval = 0;
-                                    //bottomval = this._clipval + Math.abs(layerBox.t);
+                                    topval = this._clipval + Math.abs(layerBox.t);
+                                    bottomval = this.map.height + Math.abs(layerBox.t);
                                 } else {
                                     topval = this._clipval;
                                     bottomval = this.map.height;
