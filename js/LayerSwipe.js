@@ -412,14 +412,22 @@ function (
             this._listeners.push(this._evtCoords);
         },
         _positionValues: function(layer){
-            // position object to return
-            var p = {
-                layerNode: layer._div,
-                layerGraphics: layer.graphics,
-                swipeType: this.get("type")
-            };
             // position and extent variables
             var layerBox, moveBox, mapBox, clip, ltr, ttb;
+            // position object to return
+            var p = {
+                // div node
+                layerNode: layer._div,
+                // graphics layer node
+                layerGraphics: layer.graphics,
+                // type of swipe
+                swipeType: this.get("type"),
+                // default position values
+                l: 0,
+                r: 0,
+                t: 0,
+                b: 0
+            };
             // get values
             clip = this.get("clip");
             ltr = this.get("ltr");
@@ -448,7 +456,7 @@ function (
                         p.l = 0;
                         p.r = this._clipval + Math.abs(layerBox.l);
                     } else {
-                        // p.l is ok
+                        // p.l is zero
                         p.l = 0;
                         p.r = this._clipval;
                     }
@@ -463,7 +471,7 @@ function (
                         p.l = this._clipval + Math.abs(layerBox.l);
                         p.r = this.map.width + Math.abs(layerBox.l);
                     } else {
-                        // p.l is ok
+                        // p.l is zero
                         p.l = this._clipval;
                         p.r = this.map.width;
                     }
@@ -494,21 +502,22 @@ function (
                         p.t = 0;
                         p.b = this._clipval + Math.abs(layerBox.t);
                     } else {
-                        // top is ok
+                        // top is zero
                         p.t = 0;
                         p.b = this._clipval;
                     }
                 }
                 else{
                     if (layerBox && layerBox.t > 0) {
-                        // todo
+                        // top greater than zero
                         p.t = this._clipval - Math.abs(layerBox.t);
                         p.b = this.map.height - Math.abs(layerBox.t);
                     } else if (layerBox && layerBox.t < 0) {
-                        // todo
+                        // top less than zero
                         p.t = this._clipval + Math.abs(layerBox.t);
                         p.b = this.map.height + Math.abs(layerBox.t);
                     } else {
+                        // top is zero
                         p.t = this._clipval;
                         p.b = this.map.height;
                     }
@@ -616,6 +625,7 @@ function (
                         }
                         // CSS Clip rectangle
                         var clipstring;
+                        // is this msie?
                         var ie = sniff('ie');
                         // if IE and less than ie8
                         if (ie && ie < 8) {
@@ -625,6 +635,7 @@ function (
                             //Syntax for clip "rect(top, right, bottom, left)"
                             clipstring = "rect(" + p.t + "px, " + p.r + "px, " + p.b + "px, " + p.l + "px)";
                         }
+                        // clip the node
                         domStyle.set(p.layerNode, "clip", clipstring);
                     }
                 }
