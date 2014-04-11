@@ -587,7 +587,7 @@ function (
                                                     ty = parseFloat(transformValue[1]);
                                                 } catch (e) {
                                                     // something went wrong
-                                                    console.error(e);
+                                                    console.log('LayerSwipe::Error parsing transform float');
                                                 }
                                                 // set values
                                                 leftval -= tx;
@@ -605,7 +605,7 @@ function (
                                                tx = parseFloat(divStyle.left.replace(/px/ig, "").replace(/\s/i, ""));
                                                ty = parseFloat(divStyle.top.replace(/px/ig, "").replace(/\s/i, ""));
                                             } catch (e) {
-                                                console.error(e);
+                                                console.log('LayerSwipe::Error parsing div style float');
                                             }
                                             leftval -= tx;
                                             rightval -= tx;
