@@ -388,26 +388,34 @@ function (
             this._listeners.push(this._swipePan);
             // scope has been clicked
             this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function (evt) {
-                // todo
                 if (this.get("type") === "scope") {
-                    if (this.map.hasOwnProperty('onClick') && typeof this.map.onClick === 'function' && this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
-                        var position = domGeom.position(this.map.root, true);
-                        var x = evt.pageX - position.x;
-                        var y = evt.pageY - position.y;
-                        evt.x = x;
-                        evt.y = y;
-                        evt.screenPoint = {
-                            x: x,
-                            y: y
-                        };
-                        evt.type = "click";
-                        evt.mapPoint = this.map.toMap(new Point(x, y, this.map.spatialReference));
+                    // create click position
+                    evt = this._clickPosition(evt);
+                    try {
+                        // click event on map
                         this.map.onClick(evt, "other");
+                    } catch (error) {
+                        console.log("LayerSwipe::scope click error");
                     }
                     this._clickCoords = null;
                 }
             }));
             this._listeners.push(this._toolClick);
+            // scope has been double clicked
+            this._toolDblClick = on.pausable(this._moveableNode, 'dblclick', lang.hitch(this, function (evt) {
+                if (this.get("type") === "scope") {
+                    // create click position
+                    evt = this._clickPosition(evt);
+                    try {
+                        // double click event on map
+                        this.map.navigationManager.mouseEvents.onDblClick(evt, "other");
+                    } catch (error) {
+                        console.log("LayerSwipe::scope dblclick error");
+                    }
+                    this._clickCoords = null;
+                }
+            }));
+            this._listeners.push(this._toolDblClick);
             // scope mouse down click
             this._evtCoords = on.pausable(this.moveable, "MouseDown", lang.hitch(this, function (evt) {
                 if (this.get("type") === "scope") {
@@ -418,6 +426,21 @@ function (
                 }
             }));
             this._listeners.push(this._evtCoords);
+        },
+        _clickPosition: function (evt) {
+            if (this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
+                var position = domGeom.position(this.map.root, true);
+                var x = evt.pageX - position.x;
+                var y = evt.pageY - position.y;
+                evt.x = x;
+                evt.y = y;
+                evt.screenPoint = {
+                    x: x,
+                    y: y
+                };
+                evt.mapPoint = this.map.toMap(new Point(x, y, this.map.spatialReference));
+            }
+            return evt;
         },
         _positionValues: function (layer) {
             // position and extent variables
@@ -700,12 +723,12 @@ function (
             if (nodeStyle) {
                 // check browser for these properties
                 vendors = [
-                    "transform",
-                    "-webkit-transform",
-                    "-ms-transform",
-                    "-moz-transform",
-                    "-o-transform"
-                ];
+                "transform",
+                "-webkit-transform",
+                "-ms-transform",
+                "-moz-transform",
+                "-o-transform"
+            ];
                 // each property
                 for (var i = 0; i < vendors.length; i++) {
                     // try to get property
@@ -723,8 +746,8 @@ function (
         _parseTransformValue: function (transformValue) {
             // object to return
             var t = {
-                x:0,
-                y:0
+                x: 0,
+                y: 0
             };
             // convert tranasport value to integer, remove spaces, remove px
             if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
