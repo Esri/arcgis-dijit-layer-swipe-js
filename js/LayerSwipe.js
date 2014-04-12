@@ -205,12 +205,13 @@ function (
         _mb: function () {
             // set containing coordinates for scope type
             var mapBox = domGeom.getMarginBox(this.map.root);
-            var b = {};
-            b.t = 0;
-            b.l = 0;
-            b.w = mapBox.l + mapBox.w;
-            b.h = mapBox.h + mapBox.t;
-            return b;
+            // return result object
+            return {
+                t: 0,
+                l: 0,
+                w: mapBox.l + mapBox.w,
+                h: mapBox.h + mapBox.t
+            };
         },
         _setInitialPosition: function () {
             // starting position of tool
@@ -236,12 +237,13 @@ function (
                 }
             } else if (swipeType === "horizontal") {
                 // horizontal type
+                var heightOffset = (this.map.height / 4) - (moveBox.h / 2);
                 // set initial position
                 left = 0;
                 if (ttb) {
-                    top = (this.map.height / 4) - (moveBox.h / 2);
+                    top = heightOffset;
                 } else {
-                    top = this.map.height - ((this.map.height / 4) - (moveBox.h / 2));
+                    top = this.map.height - heightOffset;
                 }
                 // use positions if set on widget
                 if (typeof cTop !== 'undefined') {
@@ -249,11 +251,12 @@ function (
                 }
             } else {
                 // vertical type
+                var widthOffset = (this.map.width / 4) - (moveBox.w / 2);
                 // set initial position
                 if (ltr) {
-                    left = (this.map.width / 4) - (moveBox.w / 2);
+                    left = widthOffset;
                 } else {
-                    left = this.map.width - ((this.map.width / 4) - (moveBox.w / 2));
+                    left = this.map.width - widthOffset;
                 }
                 top = 0;
                 // use positions if set on widget
@@ -268,19 +271,21 @@ function (
             });
         },
         _setSwipeType: function () {
+            // get moveable property
+            var moveable = this.get("moveable");
             // set the type
             var swipeType = this.get("type");
             if (swipeType) {
                 // destroy existing swipe mover
-                if (this._swipeslider) {
-                    this._swipeslider.destroy();
+                if (moveable) {
+                    moveable.destroy();
                 }
-                // add type class to movable node
+                // add type class to moveable node
                 domClass.add(this._moveableNode, swipeType);
                 // scope type
                 if (swipeType === "scope") {
-                    // create movable
-                    this._swipeslider = new move.constrainedMoveable(this._moveableNode, {
+                    // create moveable
+                    moveable = new move.constrainedMoveable(this._moveableNode, {
                         handle: this._moveableNode.id,
                         constraints: lang.hitch(this, this._mb),
                         within: true,
@@ -288,20 +293,23 @@ function (
                     });
                     // horizontal type
                 } else if (swipeType === "horizontal") {
-                    // create movable
-                    this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
+                    // create moveable
+                    moveable = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
                         within: true,
                         mover: patchedMover
                     });
                 } else {
-                    // create movable
-                    this._swipeslider = new move.parentConstrainedMoveable(this._moveableNode, {
+                    // create moveable
+                    moveable = new move.parentConstrainedMoveable(this._moveableNode, {
                         area: "content",
                         within: true,
                         mover: patchedMover
                     });
                 }
+                // set moveable property
+                this.set("moveable", moveable);
+                // starting swipe position
                 this._setInitialPosition();
             }
         },
@@ -341,6 +349,7 @@ function (
                 // move left is less than zero
                 moveBox.l < 0
             )) {
+                // reset to starting position
                 this._setInitialPosition();
             }
         },
@@ -353,7 +362,7 @@ function (
             }));
             this._listeners.push(this._mapResize);
             // swipe move
-            this._swipeMove = on.pausable(this._swipeslider, 'Move', lang.hitch(this, function () {
+            this._swipeMove = on.pausable(this.moveable, 'Move', lang.hitch(this, function () {
                 this.swipe();
             }));
             this._listeners.push(this._swipeMove);
@@ -379,6 +388,7 @@ function (
             this._listeners.push(this._swipePan);
             // scope has been clicked
             this._toolClick = on.pausable(this._moveableNode, 'click', lang.hitch(this, function (evt) {
+                // todo
                 if (this.get("type") === "scope") {
                     if (this.map.hasOwnProperty('onClick') && typeof this.map.onClick === 'function' && this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
                         var position = domGeom.position(this.map.root, true);
@@ -399,7 +409,7 @@ function (
             }));
             this._listeners.push(this._toolClick);
             // scope mouse down click
-            this._evtCoords = on.pausable(this._swipeslider, "MouseDown", lang.hitch(this, function (evt) {
+            this._evtCoords = on.pausable(this.moveable, "MouseDown", lang.hitch(this, function (evt) {
                 if (this.get("type") === "scope") {
                     this._clickCoords = {
                         x: evt.x,
@@ -430,7 +440,7 @@ function (
             clip = this.get("clip");
             ltr = this.get("ltr");
             ttb = this.get("ttb");
-            // movable node position
+            // moveable node position
             moveBox = domGeom.getMarginBox(this._moveableNode);
             // vertical and horizontal nodes
             if (p.swipeType === "vertical" || p.swipeType === "horizontal") {
@@ -657,6 +667,7 @@ function (
         },
         _swipe: function () {
             if (this.get("loaded") && this.get("enabled")) {
+                // event object
                 var emitObj = {
                     layers: []
                 };
@@ -675,33 +686,47 @@ function (
                             top: p.t,
                             bottom: p.b
                         };
+                        // add emit object
                         emitObj.layers.push(layerEmit);
                     }
                 }
+                // emit swipe event
                 this.emit("swipe", emitObj);
             }
         },
         _getTransformValue: function (nodeStyle) {
             var transformValue, vendors;
+            // style exists
             if (nodeStyle) {
+                // check browser for these properties
                 vendors = [
-                "transform",
-                "-webkit-transform",
-                "-ms-transform",
-                "-moz-transform",
-                "-o-transform"
-            ];
+                    "transform",
+                    "-webkit-transform",
+                    "-ms-transform",
+                    "-moz-transform",
+                    "-o-transform"
+                ];
+                // each property
                 for (var i = 0; i < vendors.length; i++) {
+                    // try to get property
                     transformValue = nodeStyle[vendors[i]];
+                    // if property exists
                     if (transformValue) {
+                        // stop loop
                         break;
                     }
                 }
             }
+            // return property
             return transformValue;
         },
         _parseTransformValue: function (transformValue) {
-            var t = {};
+            // object to return
+            var t = {
+                x:0,
+                y:0
+            };
+            // convert tranasport value to integer, remove spaces, remove px
             if (transformValue.toLowerCase().indexOf("translate3d") !== -1) {
                 // get 3d version of translate
                 transformValue = transformValue.replace("translate3d(", "").replace(")", "").replace(/px/ig, "").replace(/\s/i, "").split(",");
