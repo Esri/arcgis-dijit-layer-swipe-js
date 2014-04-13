@@ -39,7 +39,7 @@ function (
     // patch subclass Mover and patch onFirstMove so that the swipe handle 
     // doesn't jump when first moved
     // remove if Dojo fixes this:  https://bugs.dojotoolkit.org/ticket/15322
-    // patchedMover is used three times in _setSwipeType
+    // patchedMover is used in _setSwipeType
     // 
     // fix is in the default switch case:
     //      l = m.l;
@@ -203,7 +203,7 @@ function (
             });
         },
         _mb: function () {
-            // set containing coordinates for scope type
+            // set containing coordinates for move tool
             var mapBox = domGeom.getMarginBox(this.map.root);
             // return result object
             return {
@@ -216,8 +216,13 @@ function (
         _setInitialPosition: function () {
             // starting position of tool
             var left, top, swipeType, moveBox, cTop, cLeft, ttb, ltr;
-            swipeType = this.get("type");
+            // default position
+            left = 0;
+            top = 0;
+            // get position & dimensions of movable node
             moveBox = domGeom.getMarginBox(this._moveableNode);
+            // get properties
+            swipeType = this.get("type");
             cTop = this.get("top");
             cLeft = this.get("left");
             ttb = this.get("ttb");
@@ -225,43 +230,49 @@ function (
             // type of swipe tool
             if (swipeType === "scope") {
                 // scope type
-                // set initial position
-                left = (this.map.width / 2) - (moveBox.w / 2);
-                top = (this.map.height / 2) - (moveBox.h / 2);
-                // use positions if set on widget
+                // top position
                 if (typeof cTop !== 'undefined') {
+                    // use positions if set on widget
                     top = cTop;
+                } else {
+                    // set in middle of top
+                    top = (this.map.height / 2) - (moveBox.h / 2);
                 }
+                // left position
                 if (typeof cLeft !== 'undefined') {
+                    // use positions if set on widget
                     left = cLeft;
+                } else {
+                    // middle of width
+                    left = (this.map.width / 2) - (moveBox.w / 2);
                 }
             } else if (swipeType === "horizontal") {
                 // horizontal type
                 var heightOffset = (this.map.height / 4) - (moveBox.h / 2);
-                // set initial position
-                left = 0;
-                if (ttb) {
+                // set top position
+                if (typeof cTop !== 'undefined') {
+                    // use positions if set on widget
+                    top = cTop;
+                } else if (ttb) {
+                    // top to bottom
                     top = heightOffset;
                 } else {
+                    // bottom to top
                     top = this.map.height - heightOffset;
-                }
-                // use positions if set on widget
-                if (typeof cTop !== 'undefined') {
-                    top = cTop;
                 }
             } else {
                 // vertical type
                 var widthOffset = (this.map.width / 4) - (moveBox.w / 2);
-                // set initial position
-                if (ltr) {
+                // set left position
+                if (typeof cLeft !== 'undefined') {
+                    // use left set on widget
+                    left = cLeft;
+                } else if (ltr) {
+                    // left to right
                     left = widthOffset;
                 } else {
+                    // right to left
                     left = this.map.width - widthOffset;
-                }
-                top = 0;
-                // use positions if set on widget
-                if (typeof cLeft !== 'undefined') {
-                    left = cLeft;
                 }
             }
             // set position
@@ -282,31 +293,14 @@ function (
                 }
                 // add type class to moveable node
                 domClass.add(this._moveableNode, swipeType);
-                // scope type
-                if (swipeType === "scope") {
-                    // create moveable
-                    moveable = new move.constrainedMoveable(this._moveableNode, {
-                        handle: this._moveableNode.id,
-                        constraints: lang.hitch(this, this._mb),
-                        within: true,
-                        mover: patchedMover
-                    });
-                    // horizontal type
-                } else if (swipeType === "horizontal") {
-                    // create moveable
-                    moveable = new move.parentConstrainedMoveable(this._moveableNode, {
-                        area: "content",
-                        within: true,
-                        mover: patchedMover
-                    });
-                } else {
-                    // create moveable
-                    moveable = new move.parentConstrainedMoveable(this._moveableNode, {
-                        area: "content",
-                        within: true,
-                        mover: patchedMover
-                    });
-                }
+                // create moveable
+                moveable = new move.parentConstrainedMoveable(this._moveableNode, {
+                    area: "content",
+                    within: true,
+                    handle: this._moveableNode,
+                    constraints: lang.hitch(this, this._mb),
+                    mover: patchedMover
+                });
                 // set moveable property
                 this.set("moveable", moveable);
                 // starting swipe position
@@ -327,6 +321,7 @@ function (
             this.swipe();
         },
         _removeEvents: function () {
+            // remove all events
             if (this._listeners && this._listeners.length) {
                 for (var i = 0; i < this._listeners.length; i++) {
                     if (this._listeners[i]) {
@@ -334,6 +329,7 @@ function (
                     }
                 }
             }
+            // reset events array
             this._listeners = [];
         },
         _repositionMover: function () {
@@ -354,6 +350,7 @@ function (
             }
         },
         _setupEvents: function () {
+            // remove any events & create events variables
             this._removeEvents();
             // map resized
             this._mapResize = on.pausable(this.map, 'resize', lang.hitch(this, function () {
@@ -419,6 +416,7 @@ function (
             // scope mouse down click
             this._evtCoords = on.pausable(this.moveable, "MouseDown", lang.hitch(this, function (evt) {
                 if (this.get("type") === "scope") {
+                    // set coordinates of where click occurred
                     this._clickCoords = {
                         x: evt.x,
                         y: evt.y
@@ -428,7 +426,9 @@ function (
             this._listeners.push(this._evtCoords);
         },
         _clickPosition: function (evt) {
+            // click position is the same as movable node
             if (this._clickCoords && this._clickCoords.x === evt.x && this._clickCoords.y === evt.y) {
+                // convert screen position to map position
                 var position = domGeom.position(this.map.root, true);
                 var x = evt.pageX - position.x;
                 var y = evt.pageY - position.y;
@@ -723,12 +723,12 @@ function (
             if (nodeStyle) {
                 // check browser for these properties
                 vendors = [
-                "transform",
-                "-webkit-transform",
-                "-ms-transform",
-                "-moz-transform",
-                "-o-transform"
-            ];
+                    "transform",
+                    "-webkit-transform",
+                    "-ms-transform",
+                    "-moz-transform",
+                    "-o-transform"
+                ];
                 // each property
                 for (var i = 0; i < vendors.length; i++) {
                     // try to get property
@@ -763,7 +763,7 @@ function (
                 t.y = parseFloat(transformValue[1]);
             } catch (e) {
                 // something went wrong
-                console.log('LayerSwipe::Error parsing transform float');
+                console.log('LayerSwipe::Error parsing transform number');
             }
             return t;
         },
