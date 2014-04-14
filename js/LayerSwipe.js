@@ -534,11 +534,11 @@ function (
                 } else {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
-                        p.t = -(layerBox.t);
+                        p.t = 0 - Math.abs(layerBox.t);
                         p.b = moveBox.t - Math.abs(layerBox.t);
                     } else if (layerBox && layerBox.t < 0) {
                         // top less than zero
-                        p.t = 0;
+                        p.t = 0 + Math.abs(layerBox.t);
                         p.b = moveBox.t + Math.abs(layerBox.t);
                     } else {
                         // top is zero
