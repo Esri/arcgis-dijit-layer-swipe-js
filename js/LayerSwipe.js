@@ -534,8 +534,8 @@ function (
                 } else {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
-                        p.b = moveBox.t - Math.abs(layerBox.t);
                         p.t = -(layerBox.t);
+                        p.b = moveBox.t - Math.abs(layerBox.t);
                     } else if (layerBox && layerBox.t < 0) {
                         // top less than zero
                         p.t = 0;

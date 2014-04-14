@@ -2,16 +2,14 @@
 	position:absolute;
 	width:100%;
 	height:100%;
-    /* ie7 hack */
-    *position: absolute;
-    *z-index: 2;
-    /* end ie7 hack */
+	*z-index:1; /* IE7 */
 }
 
 .LayerSwipe .handleContainer {
 	position:relative;
 	width:100%;
 	height:100%;
+	z-index:1;
 }
 
 .LayerSwipe .vertical {
