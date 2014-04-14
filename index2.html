@@ -104,16 +104,9 @@
     <li id="toggleScope">Scope</li>
 </ul>
 <div class="clear"></div>
-<ul id="verticalItems" class="toggle-items">
-    <li id="toggleLTR">Left to Right</li>
-</ul>
-<div class="clear"></div>
-<ul id="horizontalItems" class="toggle-items">
-    <li id="toggleTTB">Top to Bottom</li>
-</ul>
-<div class="clear"></div>
 <h3>Other</h3>
-<ul class="toggle-items">    
+<ul class="toggle-items">
+    <li id="toggleInverse">Inverse</li>
     <li id="toggleLayer">Visibility</li>
     <li id="toggleEnabled">Enabled/Disabled</li>
     <li id="toggleStartup">Destroy</li>
@@ -126,7 +119,7 @@
 <script type="text/javascript">
     var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
     var dojoConfig = {
-        // The locationPath logic below may look confusing but all its doing is 
+        // The locationPath logic below may look confusing but all its doing is
         // enabling us to load the api from a CDN and load local modules from the correct location.
         packages: [{
             name: "application",
@@ -140,8 +133,8 @@
         require(["dojo/_base/lang", "esri/map", "application/LayerSwipe", "esri/arcgis/utils", "dojo/on", "dojo/dom", "dojo/query", "dojo/dom-style"], function(lang, Map, LayerSwipe, arcgisUtils, on, dom, query, domStyle){
             arcgisUtils.createMap('1966ef409a344d089b001df85332608f', "map", {
                 mapOptions: {
-                    //Optionally define additional map config here for example you can 
-                    //turn the slider off, display info windows, disable wraparound 180, slider position and more. 
+                    //Optionally define additional map config here for example you can
+                    //turn the slider off, display info windows, disable wraparound 180, slider position and more.
                 }
             }).then(lang.hitch(this, function (response) {
                 map = response.map;
@@ -174,18 +167,15 @@
                     layers: [layer, id2]
                 }, "LayerSwipe");
                 swipeWidget.startup();
-                
-                on(dom.byId('toggleLTR'), 'click', function(){
-                    swipeWidget.set("ltr", !swipeWidget.get("ltr")); 
-                });
-                on(dom.byId('toggleTTB'), 'click', function(){
-                    swipeWidget.set("ttb", !swipeWidget.get("ttb")); 
+
+                on(dom.byId('toggleInverse'), 'click', function(){
+                    swipeWidget.set("inverse", !swipeWidget.get("inverse"));
                 });
                 on(dom.byId('toggleLayer'), 'click', function(){
                     layer.setVisibility(!layer.visible);
                 });
                 on(dom.byId('toggleEnabled'), 'click', function(){
-                    swipeWidget.set("enabled", !swipeWidget.get("enabled")); 
+                    swipeWidget.set("enabled", !swipeWidget.get("enabled"));
                 });
                 on(dom.byId("toggleVertical"), 'click', function(evt){
                     swipeWidget.set("type", "vertical");
@@ -196,8 +186,7 @@
                 on(dom.byId("toggleScope"), 'click', function(evt){
                     swipeWidget.set("type", "scope");
                 });
-                
-                
+
                 on(dom.byId('toggleStartup'), 'click', function(){
                     if(swipeWidget){
                         swipeWidget.destroy();
@@ -209,48 +198,22 @@
                             map: map,
                             layers: [layer]
                         }, "LayerSwipe");
-                        swipeWidget.startup();    
+                        swipeWidget.startup();
                     }
                 });
-                
+
                 on(swipeWidget, 'swipe', function(obj){
                     console.log(obj);
                 });
-                
-                function subOptions(){
-                    var verticalItems = dom.byId('verticalItems');
-                    var horizontalItems = dom.byId('horizontalItems');
-                    var newVal = swipeWidget.get("type");
-                    
-                    if(newVal === 'vertical'){
-                        domStyle.set(verticalItems, 'display', 'block');
-                    }
-                    else{
-                        domStyle.set(verticalItems, 'display', 'none');
-                    }
-                    if(newVal === 'horizontal'){
-                        domStyle.set(horizontalItems, 'display', 'block');
-                    }
-                    else{
-                        domStyle.set(horizontalItems, 'display', 'none');
-                    }
-                }
-                
-                swipeWidget.watch("type", function(){
-                    subOptions();
-                    
-                });
-                
-                subOptions();
-        
-                
-                
-                
+
+
+
+
             }), lang.hitch(this, function (error) {
-                //an error occurred - notify the user. In this example we pull the string from the 
-                //resource.js file located in the nls folder because we've set the application up 
-                //for localization. If you don't need to support mulitple languages you can hardcode the 
-                //strings here and comment out the call in index.html to get the localization strings. 
+                //an error occurred - notify the user. In this example we pull the string from the
+                //resource.js file located in the nls folder because we've set the application up
+                //for localization. If you don't need to support mulitple languages you can hardcode the
+                //strings here and comment out the call in index.html to get the localization strings.
                 if (this.config && this.config.i18n) {
                     alert(this.config.i18n.map.error + ": " + error.message);
                 } else {

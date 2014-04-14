@@ -36,11 +36,11 @@ function (
     Deferred,
     all
 ) {
-    // patch subclass Mover and patch onFirstMove so that the swipe handle 
+    // patch subclass Mover and patch onFirstMove so that the swipe handle
     // doesn't jump when first moved
     // remove if Dojo fixes this:  https://bugs.dojotoolkit.org/ticket/15322
     // patchedMover is used in _setSwipeType
-    // 
+    //
     // fix is in the default switch case:
     //      l = m.l;
     //      t = m.t;
@@ -78,8 +78,7 @@ function (
             layers: [],
             enabled: true,
             type: "vertical",
-            ltr: true,
-            ttb: true,
+            inverse: false,
             clip: 9
         },
         // lifecycle: 1
@@ -98,14 +97,12 @@ function (
             this.set("enabled", defaults.enabled);
             this.set("type", defaults.type);
             this.set("clip", defaults.clip);
-            this.set("ltr", defaults.ltr);
-            this.set("ttb", defaults.ttb);
+            this.set("inverse", defaults.inverse);
             // listeners
             this.watch("theme", this._updateThemeWatch);
             this.watch("enabled", this._enabled);
             this.watch("type", this._type);
-            this.watch("ltr", this._ltr);
-            this.watch("ttb", this._ttb);
+            this.watch("inverse", this._inverse);
             // classes
             this._css = {
                 handleContainer: "handleContainer",
@@ -215,7 +212,7 @@ function (
         },
         _setInitialPosition: function () {
             // starting position of tool
-            var left, top, swipeType, moveBox, cTop, cLeft, ttb, ltr;
+            var left, top, swipeType, moveBox, cTop, cLeft, inverse;
             // default position
             left = 0;
             top = 0;
@@ -225,8 +222,7 @@ function (
             swipeType = this.get("type");
             cTop = this.get("top");
             cLeft = this.get("left");
-            ttb = this.get("ttb");
-            ltr = this.get("ltr");
+            inverse = this.get("inverse");
             // type of swipe tool
             if (swipeType === "scope") {
                 // scope type
@@ -253,12 +249,12 @@ function (
                 if (typeof cTop !== 'undefined') {
                     // use positions if set on widget
                     top = cTop;
-                } else if (ttb) {
-                    // top to bottom
-                    top = heightOffset;
-                } else {
+                } else if (inverse) {
                     // bottom to top
                     top = this.map.height - heightOffset;
+                } else {
+                    // top to bottom
+                    top = heightOffset;
                 }
             } else {
                 // vertical type
@@ -267,12 +263,12 @@ function (
                 if (typeof cLeft !== 'undefined') {
                     // use left set on widget
                     left = cLeft;
-                } else if (ltr) {
-                    // left to right
-                    left = widthOffset;
-                } else {
+                } else if (inverse) {
                     // right to left
                     left = this.map.width - widthOffset;
+                } else {
+                    // left to right
+                    left = widthOffset;
                 }
             }
             // set position
@@ -444,7 +440,7 @@ function (
         },
         _positionValues: function (layer) {
             // position and extent variables
-            var layerBox, moveBox, mapBox, clip, ltr, ttb;
+            var layerBox, moveBox, mapBox, clip, inverse;
             // position object to return
             var p = {
                 // div node
@@ -461,8 +457,7 @@ function (
             };
             // get values
             clip = this.get("clip");
-            ltr = this.get("ltr");
-            ttb = this.get("ttb");
+            inverse = this.get("inverse");
             // moveable node position
             moveBox = domGeom.getMarginBox(this._moveableNode);
             // vertical and horizontal nodes
@@ -477,21 +472,7 @@ function (
             }
             if (p.swipeType === "vertical") {
                 // x values
-                if (ltr) {
-                    if (layerBox && layerBox.l > 0) {
-                        // p.l is greater than zero
-                        p.l = -(layerBox.l);
-                        p.r = moveBox.l - Math.abs(layerBox.l);
-                    } else if (layerBox && layerBox.l < 0) {
-                        // p.l is less than zero
-                        p.l = 0;
-                        p.r = moveBox.l + Math.abs(layerBox.l);
-                    } else {
-                        // p.l is zero
-                        p.l = 0;
-                        p.r = moveBox.l;
-                    }
-                } else {
+                if (inverse) {
                     if (layerBox && layerBox.l > 0) {
                         // p.l is less than zero
                         p.l = moveBox.l - Math.abs(layerBox.l);
@@ -504,6 +485,20 @@ function (
                         // p.l is zero
                         p.l = moveBox.l;
                         p.r = this.map.width;
+                    }
+                } else {
+                    if (layerBox && layerBox.l > 0) {
+                        // p.l is greater than zero
+                        p.l = -(layerBox.l);
+                        p.r = moveBox.l - Math.abs(layerBox.l);
+                    } else if (layerBox && layerBox.l < 0) {
+                        // p.l is less than zero
+                        p.l = 0;
+                        p.r = moveBox.l + Math.abs(layerBox.l);
+                    } else {
+                        // p.l is zero
+                        p.l = 0;
+                        p.r = moveBox.l;
                     }
                 }
                 // y values
@@ -522,21 +517,7 @@ function (
                 }
             } else if (p.swipeType === "horizontal") {
                 // y values
-                if (ttb) {
-                    if (layerBox && layerBox.t > 0) {
-                        // top greater than zero
-                        p.b = moveBox.t - Math.abs(layerBox.t);
-                        p.t = -(layerBox.t);
-                    } else if (layerBox && layerBox.t < 0) {
-                        // top less than zero
-                        p.t = 0;
-                        p.b = moveBox.t + Math.abs(layerBox.t);
-                    } else {
-                        // top is zero
-                        p.t = 0;
-                        p.b = moveBox.t;
-                    }
-                } else {
+                if (inverse) {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
                         p.t = moveBox.t - Math.abs(layerBox.t);
@@ -549,6 +530,20 @@ function (
                         // top is zero
                         p.t = moveBox.t;
                         p.b = this.map.height;
+                    }
+                } else {
+                    if (layerBox && layerBox.t > 0) {
+                        // top greater than zero
+                        p.b = moveBox.t - Math.abs(layerBox.t);
+                        p.t = -(layerBox.t);
+                    } else if (layerBox && layerBox.t < 0) {
+                        // top less than zero
+                        p.t = 0;
+                        p.b = moveBox.t + Math.abs(layerBox.t);
+                    } else {
+                        // top is zero
+                        p.t = 0;
+                        p.b = moveBox.t;
                     }
                 }
                 // x values
@@ -827,7 +822,7 @@ function (
                     var layerGraphics = this.layers[i].graphics;
                     // layer node exists
                     if (layerNode) {
-                        // graphics layer 
+                        // graphics layer
                         if (layerGraphics) {
                             layerNode.setClip(null);
                         }
@@ -849,10 +844,7 @@ function (
                 }
             }
         },
-        _ltr: function () {
-            this.swipe();
-        },
-        _ttb: function () {
+        _inverse: function () {
             this.swipe();
         },
         _enabled: function () {
