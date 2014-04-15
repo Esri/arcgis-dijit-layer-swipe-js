@@ -440,7 +440,7 @@ function (
         },
         _positionValues: function (layer) {
             // position and extent variables
-            var layerBox, moveBox, mapBox, clip, inverse;
+            var layerBox, moveBox, mapBox, clip, layerBoxTop, layerBoxLeft, inverse;
             // position object to return
             var p = {
                 // div node
@@ -466,6 +466,8 @@ function (
                 if (p.layerNode) {
                     // get layer node position
                     layerBox = domGeom.getMarginBox(p.layerNode);
+                    layerBoxTop = Math.abs(layerBox.t);
+                    layerBoxLeft = Math.abs(layerBox.l);
                 }
                 // map node position
                 mapBox = domGeom.getMarginBox(this.map.root);
@@ -475,12 +477,12 @@ function (
                 if (inverse) {
                     if (layerBox && layerBox.l > 0) {
                         // p.l is less than zero
-                        p.l = moveBox.l - Math.abs(layerBox.l);
-                        p.r = this.map.width - Math.abs(layerBox.l);
+                        p.l = moveBox.l - layerBoxLeft;
+                        p.r = this.map.width - layerBoxLeft;
                     } else if (layerBox && layerBox.l < 0) {
                         // p.l is greater than map width
-                        p.l = moveBox.l + Math.abs(layerBox.l);
-                        p.r = this.map.width + Math.abs(layerBox.l);
+                        p.l = moveBox.l + layerBoxLeft;
+                        p.r = this.map.width + layerBoxLeft;
                     } else {
                         // p.l is zero
                         p.l = moveBox.l;
@@ -489,12 +491,12 @@ function (
                 } else {
                     if (layerBox && layerBox.l > 0) {
                         // p.l is greater than zero
-                        p.l = -(layerBox.l);
-                        p.r = moveBox.l - Math.abs(layerBox.l);
+                        p.l = 0 - layerBoxLeft;
+                        p.r = moveBox.l - layerBoxLeft;
                     } else if (layerBox && layerBox.l < 0) {
                         // p.l is less than zero
-                        p.l = 0;
-                        p.r = moveBox.l + Math.abs(layerBox.l);
+                        p.l = 0 + layerBoxLeft;
+                        p.r = moveBox.l + layerBoxLeft;
                     } else {
                         // p.l is zero
                         p.l = 0;
@@ -504,12 +506,12 @@ function (
                 // y values
                 if (layerBox && layerBox.t > 0) {
                     // top is greather than zero
-                    p.t = -(layerBox.t);
-                    p.b = mapBox.h - layerBox.t;
+                    p.t = 0 - layerBoxTop;
+                    p.b = mapBox.h - layerBoxTop;
                 } else if (layerBox && layerBox.t < 0) {
                     // top is less than zero
-                    p.t = 0;
-                    p.b = mapBox.h + Math.abs(layerBox.t);
+                    p.t = 0 + layerBoxTop;
+                    p.b = mapBox.h + layerBoxTop;
                 } else {
                     // p.t is ok
                     p.t = 0;
@@ -520,12 +522,12 @@ function (
                 if (inverse) {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
-                        p.t = moveBox.t - Math.abs(layerBox.t);
-                        p.b = this.map.height - Math.abs(layerBox.t);
+                        p.t = moveBox.t - layerBoxTop;
+                        p.b = this.map.height - layerBoxTop;
                     } else if (layerBox && layerBox.t < 0) {
                         // top less than zero
-                        p.t = moveBox.t + Math.abs(layerBox.t);
-                        p.b = this.map.height + Math.abs(layerBox.t);
+                        p.t = moveBox.t + layerBoxTop;
+                        p.b = this.map.height + layerBoxTop;
                     } else {
                         // top is zero
                         p.t = moveBox.t;
@@ -534,12 +536,12 @@ function (
                 } else {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
-                        p.t = 0 - Math.abs(layerBox.t);
-                        p.b = moveBox.t - Math.abs(layerBox.t);
+                        p.t = 0 - layerBoxTop;
+                        p.b = moveBox.t - layerBoxTop;
                     } else if (layerBox && layerBox.t < 0) {
                         // top less than zero
-                        p.t = 0 + Math.abs(layerBox.t);
-                        p.b = moveBox.t + Math.abs(layerBox.t);
+                        p.t = 0 + layerBoxTop;
+                        p.b = moveBox.t + layerBoxTop;
                     } else {
                         // top is zero
                         p.t = 0;
@@ -548,11 +550,11 @@ function (
                 }
                 // x values
                 if (layerBox && layerBox.l > 0) {
-                    p.l = -(layerBox.l);
-                    p.r = mapBox.w - layerBox.l;
+                    p.l = 0 - layerBoxLeft;
+                    p.r = mapBox.w - layerBoxLeft;
                 } else if (layerBox && layerBox.l < 0) {
-                    p.l = 0;
-                    p.r = mapBox.w + Math.abs(layerBox.l);
+                    p.l = 0 + layerBoxLeft;
+                    p.r = mapBox.w + layerBoxLeft;
                 } else {
                     p.l = 0;
                     p.r = mapBox.w;
