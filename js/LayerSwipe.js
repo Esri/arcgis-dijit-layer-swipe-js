@@ -513,7 +513,7 @@ function (
                     p.t = 0 + layerBoxTop;
                     p.b = mapBox.h + layerBoxTop;
                 } else {
-                    // p.t is ok
+                    // p.t is zero
                     p.t = 0;
                     p.b = mapBox.h;
                 }
