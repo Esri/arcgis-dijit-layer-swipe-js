@@ -8,9 +8,13 @@
 <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/claro/claro.css">
 <link rel="stylesheet" type="text/css" href="css/LayerSwipe.css">
 <style>
+    html{
+        margin: 0;
+        padding: 0;
+    }
     body{
-        margin:40px;
-        padding:20px;
+        margin:0 40px;
+        padding:0 20px;
     }
     .container{
         position:relative;
@@ -89,6 +93,7 @@
 </head>
 <body class="claro">
 <h1>LayerSwipe Dijit</h1>
+<div id="log"></div>
 <h2>Scope with 2 Graphics Layers</h2>
 <div class="container">
 	<div id="map" class="map">
@@ -106,7 +111,7 @@
 <div class="clear"></div>
 <h3>Other</h3>
 <ul class="toggle-items">
-    <li id="toggleInverse">Inverse</li>
+    <li id="toggleinvertPlacement">invertPlacement</li>
     <li id="toggleLayer">Visibility</li>
     <li id="toggleEnabled">Enabled/Disabled</li>
     <li id="toggleStartup">Destroy</li>
@@ -168,8 +173,8 @@
                 }, "LayerSwipe");
                 swipeWidget.startup();
 
-                on(dom.byId('toggleInverse'), 'click', function(){
-                    swipeWidget.set("inverse", !swipeWidget.get("inverse"));
+                on(dom.byId('toggleinvertPlacement'), 'click', function(){
+                    swipeWidget.set("invertPlacement", !swipeWidget.get("invertPlacement"));
                 });
                 on(dom.byId('toggleLayer'), 'click', function(){
                     layer.setVisibility(!layer.visible);
@@ -203,7 +208,8 @@
                 });
 
                 on(swipeWidget, 'swipe', function(obj){
-                    console.log(obj);
+                    var info = obj.layers[0];
+                    dom.byId('log').innerHTML = 'clip:rect(' + info.top + 'px,' + info.right + 'px,' + info.bottom + 'px,' + info.left + 'px)';
                 });
 
 

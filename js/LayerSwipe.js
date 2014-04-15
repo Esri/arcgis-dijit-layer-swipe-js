@@ -78,7 +78,7 @@ function (
             layers: [],
             enabled: true,
             type: "vertical",
-            inverse: false,
+            invertPlacement: false,
             clip: 9
         },
         // lifecycle: 1
@@ -97,12 +97,12 @@ function (
             this.set("enabled", defaults.enabled);
             this.set("type", defaults.type);
             this.set("clip", defaults.clip);
-            this.set("inverse", defaults.inverse);
+            this.set("invertPlacement", defaults.invertPlacement);
             // listeners
             this.watch("theme", this._updateThemeWatch);
             this.watch("enabled", this._enabled);
             this.watch("type", this._type);
-            this.watch("inverse", this._inverse);
+            this.watch("invertPlacement", this._invertPlacement);
             // classes
             this._css = {
                 handleContainer: "handleContainer",
@@ -212,7 +212,7 @@ function (
         },
         _setInitialPosition: function () {
             // starting position of tool
-            var left, top, swipeType, moveBox, cTop, cLeft, inverse;
+            var left, top, swipeType, moveBox, cTop, cLeft, invertPlacement;
             // default position
             left = 0;
             top = 0;
@@ -222,7 +222,7 @@ function (
             swipeType = this.get("type");
             cTop = this.get("top");
             cLeft = this.get("left");
-            inverse = this.get("inverse");
+            invertPlacement = this.get("invertPlacement");
             // type of swipe tool
             if (swipeType === "scope") {
                 // scope type
@@ -249,7 +249,7 @@ function (
                 if (typeof cTop !== 'undefined') {
                     // use positions if set on widget
                     top = cTop;
-                } else if (inverse) {
+                } else if (invertPlacement) {
                     // bottom to top
                     top = this.map.height - heightOffset;
                 } else {
@@ -263,7 +263,7 @@ function (
                 if (typeof cLeft !== 'undefined') {
                     // use left set on widget
                     left = cLeft;
-                } else if (inverse) {
+                } else if (invertPlacement) {
                     // right to left
                     left = this.map.width - widthOffset;
                 } else {
@@ -440,7 +440,7 @@ function (
         },
         _positionValues: function (layer) {
             // position and extent variables
-            var layerBox, moveBox, mapBox, clip, layerBoxTop, layerBoxLeft, inverse;
+            var layerBox, moveBox, mapBox, clip, layerBoxTop, layerBoxLeft, invertPlacement;
             // position object to return
             var p = {
                 // div node
@@ -457,7 +457,7 @@ function (
             };
             // get values
             clip = this.get("clip");
-            inverse = this.get("inverse");
+            invertPlacement = this.get("invertPlacement");
             // moveable node position
             moveBox = domGeom.getMarginBox(this._moveableNode);
             // vertical and horizontal nodes
@@ -474,7 +474,7 @@ function (
             }
             if (p.swipeType === "vertical") {
                 // x values
-                if (inverse) {
+                if (invertPlacement) {
                     if (layerBox && layerBox.l > 0) {
                         // p.l is less than zero
                         p.l = moveBox.l - layerBoxLeft;
@@ -519,7 +519,7 @@ function (
                 }
             } else if (p.swipeType === "horizontal") {
                 // y values
-                if (inverse) {
+                if (invertPlacement) {
                     if (layerBox && layerBox.t > 0) {
                         // top greater than zero
                         p.t = moveBox.t - layerBoxTop;
@@ -846,7 +846,7 @@ function (
                 }
             }
         },
-        _inverse: function () {
+        _invertPlacement: function () {
             this.swipe();
         },
         _enabled: function () {
