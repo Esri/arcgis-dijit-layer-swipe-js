@@ -70,8 +70,7 @@ function (
             this.events.shift().remove();
         }
     });
-    var Widget = declare([_WidgetBase, _TemplatedMixin, Evented], {
-        declaredClass: "esri.dijit.LayerSwipe",
+    var Widget = declare("esri.dijit.LayerSwipe", [_WidgetBase, _TemplatedMixin, Evented], {
         templateString: dijitTemplate,
         options: {
             theme: "LayerSwipe",
