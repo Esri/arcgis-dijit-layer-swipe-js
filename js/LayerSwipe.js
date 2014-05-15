@@ -643,6 +643,9 @@ function (
                             if (divStyle) {
                                 // get vendor transform value
                                 var transformValue = this._getTransformValue(divStyle);
+                                
+                                console.log(transformValue);
+                                
                                 // if we have the transform values
                                 if (transformValue) {
                                     t = this._parseTransformValue(transformValue);
@@ -729,6 +732,16 @@ function (
                 for (var i = 0; i < vendors.length; i++) {
                     // try to get property
                     transformValue = nodeStyle[vendors[i]];
+                    // if property exists
+                    if (transformValue) {
+                        // stop loop
+                        break;
+                    }
+                    // try to get value another way
+                    try{
+                        transformValue = nodeStyle.getPropertyValue(vendors[i]);
+                    }
+                    catch(error){}
                     // if property exists
                     if (transformValue) {
                         // stop loop
