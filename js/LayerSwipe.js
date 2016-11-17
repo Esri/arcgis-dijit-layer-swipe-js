@@ -112,6 +112,7 @@ function (
         },
         // start widget. called by user
         startup: function () {
+            this.inherited(arguments);
             // map not defined
             if (!this.map) {
                 this.destroy();
@@ -442,6 +443,8 @@ function (
             var layerBox, moveBox, mapBox, clip, layerBoxTop, layerBoxLeft, invertPlacement;
             // position object to return
             var p = {
+                // layer to be clipped
+                layer: layer,
                 // div node
                 layerNode: layer._div,
                 // graphics layer node
@@ -597,7 +600,7 @@ function (
                 // graphics layer type
                 if (p.layerGraphics) {
                     // get layer transform
-                    var tr = p.layerNode.getTransform();
+                    var tr = p.layer._getTransform();
                     // if we got the transform object
                     if (tr) {
                         // if layer is offset x
